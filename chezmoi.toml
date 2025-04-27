@@ -1,6 +1,2 @@
-[data]
-name = "Youngseok Choi"
-email = {{ .email }}
-
 [git]
-autoCommit = true
+	autoCommit = true
