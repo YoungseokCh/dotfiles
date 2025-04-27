@@ -25,3 +25,4 @@ gdown () {
     fi
 }
 
+eval "$(zoxide init zsh)"
