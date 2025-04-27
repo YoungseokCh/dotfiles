@@ -11,6 +11,8 @@ PACKAGES=(
     ripgrep
     lsd
     trash-cli
+    llama.cpp
+    font-hack-nerd-font
 )
 
 CASKS=(
@@ -42,6 +44,7 @@ brew cleanup
 printf '\n\nInstalling cask apps...\n'
 brew install --cask ${CASKS[@]}
 
+printf '\n\nInstalling aider...\n'
+curl -LsSf https://aider.chat/install.sh | sh
+
 {{ end -}}
-
-

@@ -26,3 +26,4 @@ gdown () {
 }
 
 eval "$(zoxide init zsh)"
+PATH=$HOME/.local/bin:$PATH
