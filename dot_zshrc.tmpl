@@ -27,3 +27,6 @@ gdown () {
 
 eval "$(zoxide init zsh)"
 PATH=$HOME/.local/bin:$PATH
+{{- if eq .chezmoi.osRelease.id "ubuntu"}}
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+{{- end -}}
