@@ -1,6 +1,5 @@
 #!/bin/bash
-{{- if eq .chezmoi.os "linux" -}}
-
+{{ if eq .chezmoi.os "linux" -}}
 {{- if eq .chezmoi.osRelease.id "ubuntu"}}
 
 PACKAGES=(
@@ -15,7 +14,7 @@ PACKAGES=(
 # Install packages
 sudo apt-get update
 sudo apt-get install -y ${PACKAGES[@]}
-{{- end}}
+{{ end }}
 # If Homebrew is not installed on the system, it will be installed here
 if test ! $(which brew); then
    printf '\n\n\e[33mHomebrew not found. \e[0mInstalling Homebrew...'
@@ -41,7 +40,4 @@ PACKAGES=(
 brew update
 brew install ${PACKAGES[@]}
 brew cleanup
-
-
-
-{{- end -}}
+{{ end }}
