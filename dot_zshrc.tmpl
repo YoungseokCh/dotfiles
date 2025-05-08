@@ -13,6 +13,8 @@ HISTSIZE=10000
 SAVEHIST=10000
 setopt appendhistory
 
+EDITOR=nvim
+
 # Prompt style
 PS1='%n@%m:%~%(!.#.$) '
 
@@ -35,3 +37,5 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 {{ end }}
 eval "$(zoxide init zsh)"
 PATH=$HOME/.local/bin:$PATH
+source <(fzf --zsh)
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
