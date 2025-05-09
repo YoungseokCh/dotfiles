@@ -1,14 +1,18 @@
+# Aliases
 alias vim="nvim"
 alias vi="nvim"
 alias cat="bat"
 alias ls="lsd"
-alias cd="z"
+# alias cd="z"
+alias grep="rg"
+alias find="fd"
 
 # Setting for the new UTF-8 terminal support in Lion
 LC_CTYPE=en_US.UTF-8
 LC_ALL=en_US.UTF-8
 
-HISTFILE=~/.zsh_history
+# History
+HISTFILE=~/.histfile
 HISTSIZE=10000
 SAVEHIST=10000
 setopt appendhistory
@@ -17,6 +21,13 @@ EDITOR=nvim
 
 # Prompt style
 PS1='%n@%m:%~%(!.#.$) '
+
+# Autocomplete
+autoload -Uz compinit
+compinit
+
+# PATH Variable
+PATH=$HOME/.local/bin:$PATH
 
 # Function for downloading google drive file
 gdown () {
@@ -32,15 +43,18 @@ gdown () {
 
 {{ if eq .chezmoi.os "linux" }}
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-{{ if eq .chezmoi.osRelease.id "ubuntu" }}
 {{ end }}
-{{ end }}
+
+# Zoxide
 eval "$(zoxide init zsh)"
-PATH=$HOME/.local/bin:$PATH
+
+# fzf
 source <(fzf --zsh)
+
+# Iterm2 Integration
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
-# https://wiki.archlinux.org/title/Zsh
+# Keybindings 
 # create a zkbd compatible hash;
 # to add other keys to this hash, see: man 5 terminfo
 typeset -g -A key
