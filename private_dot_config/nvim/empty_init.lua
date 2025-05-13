@@ -1,4 +1,5 @@
 require ("config.lazy")
+require ("config.autocomplete")
 
 -- Vim native settings
 vim.o.autoindent        = true
@@ -53,14 +54,6 @@ require'nvim-treesitter.configs'.setup {
   },
 }
 
--- Vim-Plug
--- local vim = vim
--- local Plug = vim.fn['plug#']
 
--- vim.call('plug#begin')
--- Plug("phha/zenburn.nvim")
--- Plug("SirVer/ultisnips")
--- Plug("neoclide/coc.nvim", { ['branch'] = 'release' })
--- vim.call('plug#end')
 
 require("zenburn").setup()
