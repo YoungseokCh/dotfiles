@@ -8,5 +8,7 @@ return {
     "hrsh7th/cmp-path",
     "L3MON4D3/LuaSnip",
     "saadparwaiz1/cmp_luasnip",
-    "rafamadriz/friendly-snippets"
+    "rafamadriz/friendly-snippets",
+    "mfussenegger/nvim-lint",
+    "rshkarin/mason-nvim-lint",
 }
