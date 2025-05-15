@@ -2,8 +2,9 @@ require ("config.lazy")
 require ("config.autocomplete")
 
 -- Vim native settings
-vim.o.autoindent        = true
+-- vim.o.autoindent = true
 vim.o.number = true
+vim.o.smartindent = true
 vim.o.tabstop=4
 vim.o.shiftwidth=4
 vim.o.expandtab = true
