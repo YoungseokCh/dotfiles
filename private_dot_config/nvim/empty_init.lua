@@ -9,11 +9,17 @@ vim.o.tabstop=4
 vim.o.shiftwidth=4
 vim.o.expandtab = true
 
-local signs = { Error = " ", Warning = " ", Hint = " ", Information = " " }
-for type, icon in pairs(signs) do
-  local hl = "LspDiagnosticsSign" .. type
-  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
-end
+-- add somewhere in your config that runs on startup:
+vim.diagnostic.config({
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = '', -- or other icon of your choice here, this is just what my config has:
+      [vim.diagnostic.severity.WARN] = '',
+      [vim.diagnostic.severity.INFO] = '',
+      [vim.diagnostic.severity.HINT] = '󰌵',
+    },
+  },
+})
 
 require("mason").setup()
 require("mason-lspconfig").setup()
