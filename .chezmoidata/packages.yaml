@@ -1,0 +1,47 @@
+packages:
+  linux:
+    arch:
+      pacman:
+        - nodejs # Copilot support
+        - chezmoi
+        - neovim
+        - tmux
+        - fzf
+        - zoxide
+        - fd
+        - bat
+        - ripgrep
+        - lsd
+        - git
+        - zsh
+        - tree
+    ubuntu:
+      apt:
+        - build-essential
+        - procps
+        - curl
+        - file
+        - git
+        - zsh
+  darwin:
+    brew:
+      - nodejs
+      - chezmoi
+      - tmux
+      - fzf
+      - zoxide
+      - fd
+      - bat
+      - ripgrep
+      - lsd
+      - font-hack-nerd-font
+      - rectangle
+      - tree
+    cask:
+      - karabiner-elements
+      - obsidian
+      - slack
+      - visual-studio-code
+      - stats
+      - scroll-reverser
+

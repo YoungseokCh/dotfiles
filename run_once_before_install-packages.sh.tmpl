@@ -1,30 +1,5 @@
-{{- if eq .chezmoi.os "darwin" -}}
 #!/bin/bash
-PACKAGES=(
-    vim
-    chezmoi
-    neovim
-    tmux
-    fzf
-    zoxide
-    fd
-    bat
-    ripgrep
-    lsd
-    trash-cli
-    llama.cpp
-    font-hack-nerd-font
-    rectangle
-)
-
-CASKS=(
-    karabiner-elements
-    obsidian
-    slack
-    visual-studio-code
-    stats
-    scroll-reverser
-)
+{{ if eq .chezmoi.os "darwin" -}}
 
 # If Homebrew is not installed on the system, it will be installed here
 if test ! $(which brew); then
@@ -44,10 +19,18 @@ brew install ${PACKAGES[@]}
 printf '\n\nRemoving out of date packages...\n'
 brew cleanup
 
-printf '\n\nInstalling cask apps...\n'
-brew install --cask ${CASKS[@]}
+{{ range .packages.darwin.brew }}
+brew install {{ . }}
+{{ end }}
+{{ range .packages.darwin.cask }}
+brew install --cask {{ . }}
+{{ end }}
+{{ end }}
 
-printf '\n\nInstalling aider...\n'
-curl -LsSf https://aider.chat/install.sh | sh
-
-{{ end -}}
+{{ if eq .chezmoi.os "linux" }}
+{{ if eq .chezmoi.osRelease.id "arch" }}
+{{ range .packages.arch.pacman }}
+sudo pacman -S {{ . }}
+{{ end }}
+{{ end }}
+{{ end }}

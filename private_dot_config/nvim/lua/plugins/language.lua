@@ -11,4 +11,5 @@ return {
     "rafamadriz/friendly-snippets",
     "mfussenegger/nvim-lint",
     "rshkarin/mason-nvim-lint",
+    "alker0/chezmoi.vim"
 }
