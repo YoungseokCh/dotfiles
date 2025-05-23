@@ -1,16 +1,7 @@
 return {
 	"mason-org/mason.nvim",
 	"mason-org/mason-lspconfig.nvim",
-	{
-		"neovim/nvim-lspconfig",
-		opts = {
-			servers = {
-				jinja_lsp = {
-					filetypes = { "jinja", "html" },
-				},
-			},
-		},
-	},
+	"neovim/nvim-lspconfig",
 	"hrsh7th/nvim-cmp", -- Completion engine
 	"hrsh7th/cmp-nvim-lsp", -- LSP completion source for nvim-cmp
 	"hrsh7th/cmp-buffer",
