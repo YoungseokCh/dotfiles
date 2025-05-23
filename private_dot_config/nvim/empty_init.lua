@@ -1,5 +1,6 @@
 require("config.lazy")
 require("config.autocomplete")
+require("config.command")
 
 -- Vim native settings
 vim.o.autoindent = true
