@@ -1,6 +1,6 @@
 diagnostics_icons = require("config.icons").diagnostics
 
-vim.diagnostics.config({
+vim.diagnostic.config({
 	signs = {
 		text = {
 			[vim.diagnostic.severity.ERROR] = diagnostics_icons.Error,
