@@ -1,9 +1,12 @@
-for type, icon in pairs(require("config.icons").diagnostics) do
-	local hl = "DiagnosticSign" .. type
+diagnostics_icons = require("config.icons").diagnostics
 
-	vim.api.nvim_set_sign(hl, {
-		text = icon,
-		texthl = hl,
-		numhl = hl,
-	})
-end
+vim.diagnostics.config({
+	signs = {
+		text = {
+			[vim.diagnostic.severity.ERROR] = diagnostics_icons.Error,
+			[vim.diagnostic.severity.WARN] = diagnostics_icons.Warn,
+			[vim.diagnostic.severity.HINT] = diagnostics_icons.Hint,
+			[vim.diagnostic.severity.INFO] = diagnostics_icons.Info,
+		}
+	}
+})
