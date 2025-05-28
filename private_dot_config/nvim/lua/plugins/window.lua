@@ -5,6 +5,22 @@ return {
 		vim.opt.laststatus = 3
 		vim.opt.splitkeep = "screen"
 	end,
+	keys = {
+		{
+			"<leader>ue",
+			function()
+				require("edgy").toggle()
+			end,
+			desc = "Edgy Toggle",
+		},
+		{
+			"<leader>uE",
+			function()
+				require("edgy").select()
+			end,
+			desc = "Edgy Select Window",
+		},
+	},
 	opts = {
 		bottom = {
 			-- toggleterm / lazyterm at the bottom with a height of 40% of the screen
