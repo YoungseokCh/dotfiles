@@ -46,31 +46,32 @@ return {
 			})
 		end,
 	},
-	{
-		"akinsho/bufferline.nvim",
-		version = "*",
-		event = "VeryLazy",
-		dependencies = "nvim-tree/nvim-web-devicons",
-		config = function()
-			local bufferline = require("bufferline")
-			bufferline.setup({
-				options = {
-					style_preset = bufferline.style_preset.minimal,
-					offsets = {
-						{
-							filetype = "NvimTree",
-							text = function()
-								-- Dirname of the current working directory
-								return vim.fn.fnamemodify(vim.fn.getcwd(), ":t")
-							end,
-							highlight = "Directory",
-							separator = true,
-						},
-					},
-				},
-			})
-		end,
-	},
+	--     { "nvim-tree/nvim-tree.lua" },
+	-- 	{
+	-- 		"akinsho/bufferline.nvim",
+	-- 		version = "*",
+	-- 		event = "VeryLazy",
+	-- 		dependencies = "nvim-tree/nvim-web-devicons",
+	-- 		config = function()
+	-- 			local bufferline = require("bufferline")
+	-- 			bufferline.setup({
+	-- 				options = {
+	-- 					style_preset = bufferline.style_preset.minimal,
+	-- 					offsets = {
+	-- 						{
+	-- 							filetype = "NvimTree",
+	-- 							text = function()
+	-- 								-- Dirname of the current working directory
+	-- 								return vim.fn.fnamemodify(vim.fn.getcwd(), ":t")
+	-- 							end,
+	-- 							highlight = "Directory",
+	-- 							separator = true,
+	-- 						},
+	-- 					},
+	-- 				},
+	-- 			})
+	-- 		end,
+	-- 	},
 
 	-- lazy.nvim
 	{
