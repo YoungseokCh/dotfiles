@@ -15,6 +15,7 @@ packages:
         - git
         - zsh
         - tree
+        - direnv
     ubuntu:
       apt:
         - build-essential

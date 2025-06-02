@@ -55,6 +55,9 @@ eval "$(zoxide init zsh)"
 source <(fzf --zsh)
 export FZF_DEFAULT_COMMAND="fd --type f"
 
+# direnv
+eval "$(direnv hook zsh)"
+
 # Iterm2 Integration
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
