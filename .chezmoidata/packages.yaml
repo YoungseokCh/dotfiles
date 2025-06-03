@@ -38,6 +38,7 @@ packages:
       - font-hack-nerd-font
       - rectangle
       - tree
+      - direnv
     cask:
       - karabiner-elements
       - obsidian
