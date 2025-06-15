@@ -7,7 +7,7 @@ if not luasnip_status then return end
 
 require("luasnip/loaders/from_vscode").lazy_load()
 
-vim.opt.completeopt = "menu,menuone,noselect"
+-- Completion options set in options.lua
 
 cmp.setup({
   snippet = {

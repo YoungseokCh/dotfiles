@@ -1,3 +1,0 @@
-return {
-    "phha/zenburn.nvim";
-}
