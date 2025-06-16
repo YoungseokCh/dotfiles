@@ -17,15 +17,15 @@ return {
 						prev = "<M-[>",
 						dismiss = "<C-]>",
 					},
-				}
+				},
 			})
 		end,
 	},
 
 	-- Time tracking
-	{ 
-		'wakatime/vim-wakatime', 
-		lazy = false 
+	{
+		"wakatime/vim-wakatime",
+		lazy = false,
 	},
 
 	-- Tmux integration
@@ -50,7 +50,7 @@ return {
 
 	-- Tmux clipboard
 	{
-		"roxma/vim-tmux-clipboard"
+		"roxma/vim-tmux-clipboard",
 	},
 
 	-- Diagnostics viewer
@@ -132,4 +132,24 @@ return {
 			},
 		},
 	},
+
+	{
+		"folke/which-key.nvim",
+		event = "VeryLazy",
+		opts = {
+			-- your configuration comes here
+			-- or leave it empty to use the default settings
+			-- refer to the configuration section below
+		},
+		keys = {
+			{
+				"<leader>?",
+				function()
+					require("which-key").show({ global = false })
+				end,
+				desc = "Buffer Local Keymaps (which-key)",
+			},
+		},
+	},
 }
+
