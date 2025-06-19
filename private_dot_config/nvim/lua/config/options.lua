@@ -120,3 +120,20 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 
 -- Export icons for use in other modules
 _G.nvim_icons = icons
+
+-- keys
+vim.keymap.set("n", "<C-_>", function()
+	vim.cmd.norm("gcc")
+end)
+
+vim.keymap.set("v", "<C-_>", function()
+	vim.cmd.norm("gcgv")
+end)
+
+vim.keymap.set("v", "<Tab>", function()
+	vim.cmd.norm(">gv")
+end)
+
+vim.keymap.set("v", "<S-Tab>", function()
+	vim.cmd.norm("<gv")
+end)
