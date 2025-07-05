@@ -1,5 +1,11 @@
 -- LSP, completion, and formatting plugins
 return {
+	-- {
+	--  "nmac427/guess-indent.nvim",
+	--     config = function()
+	--         require('guess-indent').setup()
+	--     end
+	-- },
 	-- Mason LSP installer
 	{
 		"mason-org/mason.nvim",

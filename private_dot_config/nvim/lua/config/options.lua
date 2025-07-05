@@ -9,8 +9,8 @@ vim.o.relativenumber = true
 vim.o.tabstop = 4
 vim.o.shiftwidth = 4
 vim.o.expandtab = true
-vim.o.smartindent = true
-vim.o.wrap = false
+vim.o.smartindent = false
+vim.o.wrap = true
 vim.o.cursorline = true
 
 -- Search options
@@ -39,70 +39,6 @@ vim.o.undofile = true
 -- Clipboard
 vim.o.clipboard = "unnamedplus"
 
--- Icons configuration
-local icons = {
-	diagnostics = {
-		Error = " ",
-		Warn = " ",
-		Hint = " ",
-		Info = " ",
-	},
-	git = {
-		added = " ",
-		modified = " ",
-		removed = " ",
-	},
-	kinds = {
-		Array = " ",
-		Boolean = " ",
-		Class = " ",
-		Color = " ",
-		Constant = " ",
-		Constructor = " ",
-		Copilot = " ",
-		Enum = " ",
-		EnumMember = " ",
-		Event = " ",
-		Field = " ",
-		File = " ",
-		Folder = "󰉋 ",
-		Function = " ",
-		Interface = " ",
-		Key = " ",
-		Keyword = " ",
-		Method = " ",
-		Module = " ",
-		Namespace = " ",
-		Null = " ",
-		Number = " ",
-		Object = " ",
-		Operator = " ",
-		Package = " ",
-		Property = " ",
-		Reference = " ",
-		Snippet = " ",
-		String = " ",
-		Struct = " ",
-		Text = " ",
-		TypeParameter = " ",
-		Unit = " ",
-		Value = " ",
-		Variable = " ",
-	},
-}
-
--- Configure diagnostics with icons
-vim.diagnostic.config({
-	signs = {
-		text = {
-			[vim.diagnostic.severity.ERROR] = icons.diagnostics.Error,
-			[vim.diagnostic.severity.WARN] = icons.diagnostics.Warn,
-			[vim.diagnostic.severity.HINT] = icons.diagnostics.Hint,
-			[vim.diagnostic.severity.INFO] = icons.diagnostics.Info,
-		},
-	},
-})
-
 -- Filetype detection for Go HTML templates
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 	pattern = "*.html",
@@ -117,9 +53,6 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 	end,
 	group = vim.api.nvim_create_augroup("GoHtmlTmplDetect", { clear = true }),
 })
-
--- Export icons for use in other modules
-_G.nvim_icons = icons
 
 -- keys
 vim.keymap.set("n", "<C-_>", function()
