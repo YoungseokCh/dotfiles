@@ -1,17 +1,14 @@
--- Neovim native settings
-vim.g.mapleader = " "
-vim.g.maplocalleader = "\\"
-
 -- Editor options
 vim.o.autoindent = true
 vim.o.number = true
 vim.o.relativenumber = true
 vim.o.tabstop = 4
 vim.o.shiftwidth = 4
-vim.o.expandtab = true
+vim.o.expandtab = false
 vim.o.smartindent = false
 vim.o.wrap = true
 vim.o.cursorline = true
+vim.o.laststatus = 3
 
 -- Search options
 vim.o.ignorecase = true
@@ -70,3 +67,16 @@ end)
 vim.keymap.set("v", "<S-Tab>", function()
 	vim.cmd.norm("<gv")
 end)
+
+-- Diagnostic icons
+local signs = {
+	Error = " ",
+	Warning = " ",
+	Hint = " ",
+	Information = " ",
+}
+
+for type, icon in pairs(signs) do
+	local hl = "DiagnosticSign" .. type
+	vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+end

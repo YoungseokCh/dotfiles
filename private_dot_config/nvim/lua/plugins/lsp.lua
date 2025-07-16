@@ -19,7 +19,9 @@ return {
 			require("mason-lspconfig").setup()
 		end,
 	},
-	"neovim/nvim-lspconfig",
+	{
+		"neovim/nvim-lspconfig",
+	},
 
 	-- Completion engine and sources
 	{

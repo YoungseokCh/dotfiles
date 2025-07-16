@@ -2,8 +2,6 @@
 return {
 	{
 		"yetone/avante.nvim",
-		-- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
-		-- ⚠️ must add this setting! ! !
 		build = function()
 			-- conditionally use the correct build system for the current OS
 			if vim.fn.has("win32") == 1 then
@@ -17,8 +15,6 @@ return {
 		---@module 'avante'
 		---@type avante.Config
 		opts = {
-			-- add any opts here
-			-- for example
 			provider = "claude",
 			providers = {
 				claude = {
@@ -29,6 +25,14 @@ return {
 						temperature = 0.75,
 						max_tokens = 20480,
 					},
+				},
+			},
+			input = {
+				provider = "snacks",
+				provider_opts = {
+					-- Additional snacks.input options
+					title = "Avante Input",
+					icon = " ",
 				},
 			},
 		},

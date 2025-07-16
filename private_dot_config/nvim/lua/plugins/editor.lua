@@ -45,48 +45,71 @@ return {
 		end,
 	},
 
-	-- Neo-tree file explorer
+	-- -- Neo-tree file explorer
+	-- {
+	-- 	"nvim-neo-tree/neo-tree.nvim",
+	-- 	config = function()
+	-- 		require("neo-tree").setup({
+	-- 			filesystem = {
+	-- 				hijack_netrw_behavior = "open_current",
+	-- 				commands = {
+	-- 					avante_add_files = function(state)
+	-- 						local node = state.tree:get_node()
+	-- 						local filepath = node:get_id()
+	-- 						local relative_path = require("avante.utils").relative_path(filepath)
+	--
+	-- 						local sidebar = require("avante").get()
+	--
+	-- 						local open = sidebar:is_open()
+	-- 						-- ensure avante sidebar is open
+	-- 						if not open then
+	-- 							require("avante.api").ask()
+	-- 							sidebar = require("avante").get()
+	-- 						end
+	--
+	-- 						sidebar.file_selector:add_selected_file(relative_path)
+	--
+	-- 						-- remove neo tree buffer
+	-- 						if not open then
+	-- 							sidebar.file_selector:remove_selected_file("neo-tree filesystem [1]")
+	-- 						end
+	-- 					end,
+	-- 				},
+	-- 				window = {
+	-- 					mappings = {
+	-- 						["oa"] = "avante_add_files",
+	-- 					},
+	-- 				},
+	-- 			},
+	-- 		})
+	-- 	end,
+	-- 	dependencies = {
+	-- 		"nvim-lua/plenary.nvim",
+	-- 		"nvim-tree/nvim-web-devicons",
+	-- 		"MunifTanjim/nui.nvim",
+	-- 	},
+	-- },
 	{
-		"nvim-neo-tree/neo-tree.nvim",
-		config = function()
-			require("neo-tree").setup({
-				filesystem = {
-					hijack_netrw_behavior = "open_current",
-					commands = {
-						avante_add_files = function(state)
-							local node = state.tree:get_node()
-							local filepath = node:get_id()
-							local relative_path = require("avante.utils").relative_path(filepath)
-
-							local sidebar = require("avante").get()
-
-							local open = sidebar:is_open()
-							-- ensure avante sidebar is open
-							if not open then
-								require("avante.api").ask()
-								sidebar = require("avante").get()
-							end
-
-							sidebar.file_selector:add_selected_file(relative_path)
-
-							-- remove neo tree buffer
-							if not open then
-								sidebar.file_selector:remove_selected_file("neo-tree filesystem [1]")
-							end
-						end,
-					},
-					window = {
-						mappings = {
-							["oa"] = "avante_add_files",
-						},
-					},
-				},
-			})
-		end,
-		dependencies = {
-			"nvim-lua/plenary.nvim",
-			"nvim-tree/nvim-web-devicons",
-			"MunifTanjim/nui.nvim",
+		"folke/snacks.nvim",
+		priority = 1000,
+		lazy = false,
+		---@type snacks.Config
+		opts = {
+			-- your configuration comes here
+			-- or leave it empty to use the default settings
+			-- refer to the configuration section below
+			bigfile = { enabled = true },
+			dashboard = { enabled = true },
+			explorer = { enabled = true },
+			indent = { enabled = true },
+			input = { enabled = true },
+			picker = { enabled = true },
+			notifier = { enabled = true },
+			quickfile = { enabled = true },
+			scope = { enabled = true },
+			statuscolumn = { enabled = true },
+			words = { enabled = true },
+			scroll = { enabled = true },
 		},
 	},
 }
