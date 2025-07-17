@@ -1,6 +1,5 @@
 -- UI and interface plugins
 return {
-	-- Colorscheme
 	{
 		"phha/zenburn.nvim",
 		config = function()
@@ -128,5 +127,72 @@ return {
 				end,
 			})
 		end,
+	},
+	{ "nvzone/volt", lazy = true },
+	{
+		"nvzone/menu",
+		lazy = true,
+		opts = {
+			mouse = true,
+			border = false,
+		},
+		config = function(_, opts)
+			vim.keymap.set({ "n", "v" }, "<RightMouse>", function()
+				require("menu.utils").delete_old_menus()
+
+				vim.cmd.exec('"normal! \\<RightMouse>"')
+
+				-- clicked buf
+				local buf = vim.api.nvim_win_get_buf(vim.fn.getmousepos().winid)
+				local options = vim.bo[buf].ft == "neo-tree" and "neo-tree" or "default"
+
+				require("menu").open(options, opts)
+			end, {})
+		end,
+	},
+
+	-- Neo-tree file explorer
+	{
+		"nvim-neo-tree/neo-tree.nvim",
+		config = function()
+			require("neo-tree").setup({
+				filesystem = {
+					hijack_netrw_behavior = "open_current",
+					commands = {
+						avante_add_files = function(state)
+							local node = state.tree:get_node()
+							local filepath = node:get_id()
+							local relative_path = require("avante.utils").relative_path(filepath)
+
+							local sidebar = require("avante").get()
+
+							local open = sidebar:is_open()
+							-- ensure avante sidebar is open
+							if not open then
+								require("avante.api").ask()
+								sidebar = require("avante").get()
+							end
+
+							sidebar.file_selector:add_selected_file(relative_path)
+
+							-- remove neo tree buffer
+							if not open then
+								sidebar.file_selector:remove_selected_file("neo-tree filesystem [1]")
+							end
+						end,
+					},
+					window = {
+						mappings = {
+							["oa"] = "avante_add_files",
+						},
+					},
+				},
+			})
+		end,
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"nvim-tree/nvim-web-devicons",
+			"MunifTanjim/nui.nvim",
+		},
 	},
 }

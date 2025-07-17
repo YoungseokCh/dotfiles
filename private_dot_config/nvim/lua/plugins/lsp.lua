@@ -9,6 +9,34 @@ return {
 	-- Mason LSP installer
 	{
 		"mason-org/mason.nvim",
+		opts = { ensure_installed = { "gitui" } },
+		keys = {
+			{
+				"<leader>gG",
+				function()
+					Snacks.terminal({ "gitui" })
+				end,
+				desc = "GitUi (cwd)",
+			},
+			{
+				"<leader>gg",
+				function()
+					Snacks.terminal({ "gitui" }, { cwd = LazyVim.root.get() })
+				end,
+				desc = "GitUi (Root Dir)",
+			},
+		},
+		init = function()
+			-- delete lazygit keymap for file history
+			vim.api.nvim_create_autocmd("User", {
+				pattern = "LazyVimKeymaps",
+				once = true,
+				callback = function()
+					pcall(vim.keymap.del, "n", "<leader>gf")
+					pcall(vim.keymap.del, "n", "<leader>gl")
+				end,
+			})
+		end,
 		config = function()
 			require("mason").setup()
 		end,
@@ -26,6 +54,13 @@ return {
 	-- Completion engine and sources
 	{
 		"hrsh7th/nvim-cmp",
+		dependencies = {
+			"hrsh7th/cmp-nvim-lsp",
+			"hrsh7th/cmp-buffer",
+			"hrsh7th/cmp-path",
+			"L3MON4D3/LuaSnip",
+			"saadparwaiz1/cmp_luasnip",
+		},
 		config = function()
 			local cmp_status, cmp = pcall(require, "cmp")
 			if not cmp_status then
@@ -86,13 +121,8 @@ return {
 			})
 		end,
 	},
-	"hrsh7th/cmp-nvim-lsp",
-	"hrsh7th/cmp-buffer",
-	"hrsh7th/cmp-path",
 
 	-- Snippet engine
-	"L3MON4D3/LuaSnip",
-	"saadparwaiz1/cmp_luasnip",
 	"rafamadriz/friendly-snippets",
 
 	-- Linting and formatting

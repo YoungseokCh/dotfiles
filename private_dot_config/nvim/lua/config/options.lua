@@ -17,7 +17,7 @@ vim.o.hlsearch = true
 vim.o.incsearch = true
 
 -- UI options
-vim.o.termguicolors = true
+vim.o.termguicolors = false
 vim.o.signcolumn = "yes"
 vim.o.scrolloff = 8
 vim.o.sidescrolloff = 8
