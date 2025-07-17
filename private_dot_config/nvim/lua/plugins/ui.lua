@@ -1,9 +1,12 @@
 -- UI and interface plugins
 return {
 	{
-		"phha/zenburn.nvim",
-		config = function()
-			require("zenburn").setup()
+		"youngseokch/zenburn.nvim",
+		opts = {
+			background = false,
+		},
+		config = function(opts)
+			require("zenburn").setup(opts)
 		end,
 	},
 
