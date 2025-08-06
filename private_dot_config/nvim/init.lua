@@ -5,4 +5,4 @@ vim.g.maplocalleader = "\\"
 require("config.lazy")
 require("config.options")
 
-local ok, _ = pcall(require, "cofnig.local")
+local ok, _ = pcall(require, "config.local")
