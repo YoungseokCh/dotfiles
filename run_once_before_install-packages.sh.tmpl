@@ -33,6 +33,11 @@ brew install --cask {{ . }}
 sudo pacman -Syu {{ . }}
 {{ end }}
 {{ end }}
+{{ if eq .chezmoi.osRelease.id "debian" }}
+{{ range .packages.linux.ubuntu.apt }}
+sudo apt-get install -y {{ . }}
+{{ end }}
+{{ end }}
 {{ end }}
 
 if [ ! -d "${HOME}/.tmux/plugins/tpm" ]; then
