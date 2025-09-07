@@ -44,9 +44,6 @@ sudo pacman -Syu {{ . }}
 {{ range .packages.linux.ubuntu.apt }}
 sudo apt-get install -y {{ . }}
 {{ end }}
-{{ range .packages.linux.ubuntu.brew }}
-brew install {{ . }}
-{{ end }}
 {{ end }}
 {{ end }}
 
