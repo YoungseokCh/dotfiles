@@ -31,7 +31,7 @@ packages:
         - fd
         - bat
         - ripgrep
-        - lsd
+        - fd-find
   darwin:
     brew:
       - nodejs

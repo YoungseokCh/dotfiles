@@ -1,12 +1,18 @@
 #!/bin/bash
-{{ if eq .chezmoi.os "darwin" -}}
 
-# If Homebrew is not installed on the system, it will be installed here
-if test ! $(which brew); then
-   printf '\n\n\e[33mHomebrew not found. \e[0mInstalling Homebrew...'
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+# Install Homebrew on any OS if not found
+if ! command -v brew &> /dev/null; then
+  printf '\n\n\e[33mHomebrew not found. \e[0mInstalling Homebrew...\n'
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  
+  # Add brew to PATH (Linux needs this, macOS usually fine)
+  if [ -d "/home/linuxbrew/.linuxbrew/bin" ]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+  elif [ -d "/opt/homebrew/bin" ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  fi
 else
-  printf '\n\n\e[0mHomebrew found. Continuing...'
+  printf '\n\n\e[0mHomebrew found. Continuing...\n'
 fi
 
 # Update homebrew packages
@@ -19,6 +25,7 @@ brew install ${PACKAGES[@]}
 printf '\n\nRemoving out of date packages...\n'
 brew cleanup
 
+{{ if eq .chezmoi.os "darwin" -}}
 {{ range .packages.darwin.brew }}
 brew install {{ . }}
 {{ end }}
@@ -37,9 +44,13 @@ sudo pacman -Syu {{ . }}
 {{ range .packages.linux.ubuntu.apt }}
 sudo apt-get install -y {{ . }}
 {{ end }}
+{{ range .packages.linux.ubuntu.brew }}
+brew install {{ . }}
+{{ end }}
 {{ end }}
 {{ end }}
 
+# Install tmux plugin manager if not exists
 if [ ! -d "${HOME}/.tmux/plugins/tpm" ]; then
   git clone https://github.com/tmux-plugins/tpm "${HOME}/.tmux/plugins/tpm"
 fi
