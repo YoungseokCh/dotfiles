@@ -80,3 +80,9 @@ for type, icon in pairs(signs) do
 	local hl = "DiagnosticSign" .. type
 	vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
 end
+
+-- Disable arrow keys
+vim.keymap.set("n", "<Up>", ':echo "Use hjkl!"<CR>', { silent = true })
+vim.keymap.set("n", "<Down>", ':echo "Use hjkl!"<CR>', { silent = true })
+vim.keymap.set("n", "<Left>", ':echo "Use hjkl!"<CR>', { silent = true })
+vim.keymap.set("n", "<Right>", ':echo "Use hjkl!"<CR>', { silent = true })
