@@ -63,4 +63,8 @@ table.insert(keymaps, {
 return {
 	color_scheme = "Zenburn",
 	keys = keymaps,
+	window_padding = {
+		bottom = 0,
+	},
+	hide_tab_bar_if_only_one_tab = false,
 }
