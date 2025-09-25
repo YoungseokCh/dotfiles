@@ -1,18 +1,19 @@
 #!/bin/bash
 
+{{ if eq .chezmoi.os "darwin" -}}
 # Install Homebrew on any OS if not found
-if ! command -v brew &> /dev/null; then
-  printf '\n\n\e[33mHomebrew not found. \e[0mInstalling Homebrew...\n'
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  
-  # Add brew to PATH (Linux needs this, macOS usually fine)
-  if [ -d "/home/linuxbrew/.linuxbrew/bin" ]; then
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-  elif [ -d "/opt/homebrew/bin" ]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-  fi
+if ! command -v brew &>/dev/null; then
+	printf '\n\n\e[33mHomebrew not found. \e[0mInstalling Homebrew...\n'
+	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+	# Add brew to PATH (Linux needs this, macOS usually fine)
+	if [ -d "/home/linuxbrew/.linuxbrew/bin" ]; then
+		eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+	elif [ -d "/opt/homebrew/bin" ]; then
+		eval "$(/opt/homebrew/bin/brew shellenv)"
+	fi
 else
-  printf '\n\n\e[0mHomebrew found. Continuing...\n'
+	printf '\n\n\e[0mHomebrew found. Continuing...\n'
 fi
 
 # Update homebrew packages
@@ -25,7 +26,6 @@ brew install ${PACKAGES[@]}
 printf '\n\nRemoving out of date packages...\n'
 brew cleanup
 
-{{ if eq .chezmoi.os "darwin" -}}
 {{ range .packages.darwin.brew }}
 brew install {{ . }}
 {{ end }}
@@ -36,8 +36,9 @@ brew install --cask {{ . }}
 
 {{ if eq .chezmoi.os "linux" }}
 {{ if eq .chezmoi.osRelease.id "arch" }}
+sudo pacman -Sy
 {{ range .packages.linux.arch.pacman }}
-sudo pacman -Syu {{ . }}
+sudo pacman -S --needed {{ . }}
 {{ end }}
 {{ end }}
 {{ if eq .chezmoi.osRelease.id "debian" }}
@@ -49,5 +50,5 @@ sudo apt-get install -y {{ . }}
 
 # Install tmux plugin manager if not exists
 if [ ! -d "${HOME}/.tmux/plugins/tpm" ]; then
-  git clone https://github.com/tmux-plugins/tpm "${HOME}/.tmux/plugins/tpm"
+	git clone https://github.com/tmux-plugins/tpm "${HOME}/.tmux/plugins/tpm"
 fi

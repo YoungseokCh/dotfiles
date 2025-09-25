@@ -49,8 +49,12 @@ gdown () {
 }
 
 {{ if eq .chezmoi.os "linux" }}
+# Brew
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 {{ end }}
+
+# Starship
+eval "$(starship init zsh)"
 
 # Zoxide
 eval "$(zoxide init zsh)"

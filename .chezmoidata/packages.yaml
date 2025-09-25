@@ -16,6 +16,7 @@ packages:
         - zsh
         - tree
         - direnv
+        - starship
     ubuntu:
       apt:
         - build-essential
@@ -47,6 +48,7 @@ packages:
       - rectangle
       - tree
       - direnv
+      - starship
     cask:
       - karabiner-elements
       - obsidian
