@@ -17,6 +17,7 @@ packages:
         - tree
         - direnv
         - starship
+        - trash-cli
     ubuntu:
       apt:
         - build-essential
