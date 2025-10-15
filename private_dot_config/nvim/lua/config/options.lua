@@ -1,4 +1,5 @@
 -- Editor options
+vim.g.autoformat = false
 vim.o.autoindent = true
 -- vim.o.number = true
 vim.o.relativenumber = false
