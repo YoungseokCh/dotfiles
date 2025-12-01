@@ -1,5 +1,7 @@
 local default_opacity = 0.9
 local wezterm = require("wezterm")
+local act = wezterm.action
+
 local keymaps = {}
 
 table.insert(keymaps, {
@@ -58,6 +60,18 @@ table.insert(keymaps, {
 			end
 		end),
 	}),
+})
+
+table.insert(keymaps, {
+	key = "UpArrow",
+	mods = "SHIFT",
+	action = act.ScrollToPrompt(-1)
+})
+
+table.inesrt(keymaps, {
+	key = "DownArrow",
+	mods = "SHIFT",
+	action = act.ScrollToPrompt(1)
 })
 
 return {
