@@ -1,14 +1,9 @@
 # Aliases
 alias vim="nvim"
 alias vi="nvim"
-alias cat="bat"
 alias ls="lsd"
-# alias cd="z"
-alias grep="rg"
-alias find="fd"
 alias la="lsd -a"
 alias l="lsd --group-directories-first -Xl"
-alias h="gh copilot suggest -t shell"
 alias rm="trash-put"
 
 # Setting for the new UTF-8 terminal support in Lion
@@ -49,10 +44,6 @@ gdown () {
     fi
 }
 
-{{ if eq .chezmoi.os "linux" }}
-# Brew
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-{{ end }}
 
 # Starship
 eval "$(starship init zsh)"
@@ -69,6 +60,9 @@ eval "$(direnv hook zsh)"
 
 # Iterm2 Integration
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
+# Wezterm Integration
+source ${HOME}/.config/zsh/wezterm.zsh
 
 # Keybindings 
 # create a zkbd compatible hash;
