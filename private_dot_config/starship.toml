@@ -140,10 +140,10 @@ symbol = " "
 
 [directory]
 # fish_style_pwd_dir_length = 1
-truncate_to_repo = true
-home_symbol = '~'
-format = '[$path ](bold orange)'
-repo_root_format = '[$before_root_path $repo_root](bold orange) '
+# truncate_to_repo = true
+# home_symbol = ""
+format = "[$path](bold orange) "
+# repo_root_format = '[$before_root_path $repo_root](bold orange) '
 
 read_only = " 󰌾"
 
