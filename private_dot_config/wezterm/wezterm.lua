@@ -68,7 +68,7 @@ table.insert(keymaps, {
 	action = act.ScrollToPrompt(-1)
 })
 
-table.inesrt(keymaps, {
+table.insert(keymaps, {
 	key = "DownArrow",
 	mods = "SHIFT",
 	action = act.ScrollToPrompt(1)
