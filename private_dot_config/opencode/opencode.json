@@ -1,0 +1,8 @@
+{
+  "plugin": [
+  ],
+  "$schema": "https://opencode.ai/config.json",
+  "permission": {
+	"edit": "ask"
+  }
+}
