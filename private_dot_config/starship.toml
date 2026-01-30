@@ -105,8 +105,8 @@ orange = '#efdcbc'
 
 
 [character]
-success_symbol = '>'
-error_symbol = '[>](bold red)'
+success_symbol = '\$'
+error_symbol = '[\$](bold red)'
 
 [aws]
 symbol = " "
