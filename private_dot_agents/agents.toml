@@ -1,0 +1,85 @@
+# ~/.agents/agents.toml — Shared agent configuration
+# All background skills (implementer, planner, reviewer) read this file
+# to determine which agents to use and in what order.
+
+# ---------------------------------------------------------------------------
+# Global defaults
+# ---------------------------------------------------------------------------
+[defaults]
+# Agent priority: skills pick agents left to right.
+# First enabled + installed agent wins unless a skill overrides.
+priority = ["claude", "codex", "gemini"]
+
+# Max agents to run in parallel per skill invocation.
+max_parallel = 3
+
+# ---------------------------------------------------------------------------
+# Agent definitions
+# ---------------------------------------------------------------------------
+
+[agents.claude]
+enabled = true
+# Claude runs as a Task/Agent subagent inside Claude Code — no external CLI.
+type = "builtin"
+strengths = ["architecture", "security", "complex-logic", "multi-file"]
+
+[agents.codex]
+enabled = true
+type = "cli"
+command = "codex"
+exec = "codex exec --full-auto"
+exec_readonly = "codex exec --full-auto --sandbox read-only"
+review = "codex exec review"
+strengths = ["bugs", "code-gen", "review", "edge-cases"]
+notes = """
+Use -C dir for working directory. Use -o file for last message.
+Use --add-dir <path> for extra write access.
+For parallel runs, use git worktrees to avoid file conflicts.
+"""
+
+[agents.gemini]
+enabled = true
+type = "cli"
+command = "gemini"
+exec = "gemini -p \"{prompt}\" --yolo -o text"
+exec_readonly = "gemini -p \"{prompt}\" -o text"
+strengths = ["tests", "docs", "ux", "creative"]
+notes = """
+Use --yolo for auto-approve file writes.
+Do NOT use -s (that is --sandbox, not silent).
+Redirect stdout to capture output: > output.md 2>/dev/null
+"""
+
+[agents.opencode]
+enabled = false
+type = "cli"
+command = "opencode"
+exec = "opencode run -q -f text \"{prompt}\""
+strengths = ["general", "multi-model"]
+notes = """
+Use -q to suppress spinner, -f text for plain output.
+Use --attach http://localhost:PORT to reuse running server.
+"""
+
+[agents.ollama]
+enabled = false
+type = "cli"
+command = "ollama"
+exec = "ollama run {model}"
+model = "llama3.2"
+strengths = ["local", "sensitive-data", "simple-utils"]
+notes = "Fully local — no API keys needed. Good for sensitive data."
+
+# ---------------------------------------------------------------------------
+# Per-skill overrides (optional)
+# Uncomment to override priority for specific skills.
+# ---------------------------------------------------------------------------
+
+# [skills.implementer]
+# priority = ["codex", "claude"]
+
+# [skills.planner]
+# priority = ["claude", "gemini"]
+
+# [skills.reviewer]
+# priority = ["codex", "claude", "gemini"]

@@ -1,8 +1,20 @@
 {
-  "plugin": [
-  ],
   "$schema": "https://opencode.ai/config.json",
-  "permission": {
-	"edit": "ask"
-  }
+  "mcp": {
+    "chrome-devtools": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "chrome-devtools-mcp@latest",
+        "--slim",
+        "--headless"
+      ],
+      "enabled": true
+    }
+  },
+  "plugin": [
+    "oh-my-opencode-slim",
+	"opencode-wakatime"
+  ],
 }
