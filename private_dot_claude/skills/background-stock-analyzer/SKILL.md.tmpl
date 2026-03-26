@@ -1,0 +1,162 @@
+---
+name: background-stock-analyzer
+description: Orchestrates multi-LLM parallel stock analysis in the background. Technical, fundamental, and sentiment analysts work in parallel to produce comprehensive investment analysis. Use for "주식 분석", "종목 분석", "bg stock", "stock analyze", "투자 분석", "차트 분석" requests.
+allowed-tools: Read, Bash, Grep, Glob, Task, Write, Edit, AskUserQuestion, Agent, WebFetch, WebSearch
+priority: high
+tags: [stock, analysis, background, parallel-execution, multi-llm, investment]
+---
+
+# Background Stock Analyzer
+
+Multi-LLM parallel stock analysis with technical, fundamental, and sentiment perspectives.
+
+## Quick Start
+
+```bash
+# 1. Parse ticker symbol(s) and analysis scope
+# 2. Create: .context/stock-analysis/
+# 3. Determine round: R01, R02, ...
+# 4. Write analysis request with context
+# 5. Run analysts in background → {round}-{name}.md
+# 6. Track agent completion automatically
+# 7. Merge into investment thesis when all complete
+```
+
+## Output Convention
+
+```
+.context/stock-analysis/
+├── R01-request.md                # Analysis request and context
+{{- range .agents.roles.stock_analyzer }}
+├── R01-{{ .name }}.md{{ " " }}            # {{ .provider }}: {{ .for }}
+{{- end }}
+├── R01-merged.md                 # Round 1: merged analysis
+└── R02-merged.md
+```
+
+**Round number** increments each analysis iteration:
+```bash
+mkdir -p .context/stock-analysis
+ROUND=$(printf "R%02d" $(( $(ls .context/stock-analysis/R*-*.md 2>/dev/null | sed 's/.*\/R\([0-9]*\)-.*/\1/' | sort -rn | head -1 | sed 's/^0*//') + 1 )))
+```
+
+## Analysts
+
+| Name | Provider | Focus |
+|------|----------|-------|
+{{- range .agents.roles.stock_analyzer }}
+| **{{ .name }}** | {{ .provider }} | {{ .for }} |
+{{- end }}
+
+## Workflow
+
+### Step 1: Setup & Research Request
+
+```bash
+mkdir -p .context/stock-analysis
+ROUND=$(printf "R%02d" $(( $(ls .context/stock-analysis/R*-*.md 2>/dev/null | sed 's/.*\/R\([0-9]*\)-.*/\1/' | sort -rn | head -1 | sed 's/^0*//') + 1 )))
+```
+
+Write `.context/stock-analysis/${ROUND}-request.md`:
+```markdown
+# Stock Analysis Request (${ROUND})
+- Ticker: AAPL (or multiple)
+- Date: YYYY-MM-DD
+- Timeframe: short-term / mid-term / long-term
+- Focus: (optional user-specified areas)
+- Context: (market conditions, recent events)
+
+## Instructions
+- Use web search to gather current data
+- Include specific numbers, dates, and sources
+- Rate confidence level for each finding
+- Flag any data that could not be verified
+```
+
+### Step 2: Launch Analysts (all with run_in_background)
+
+**IMPORTANT**: Use `run_in_background: true` on ALL agent launches. Each analyst should use WebSearch/WebFetch to gather current market data.
+{{ range .agents.roles.stock_analyzer }}
+{{- $provider := index $.agents.providers .provider }}
+**{{ .name }}** ({{ .provider }}):
+```
+{{ .run }}```
+{{ if hasKey $provider "notes" }}> {{ $provider.notes | trim | replace "\n" " " }}
+{{ end }}
+{{- end }}
+
+### Step 3: Track Completion (AUTOMATIC)
+
+Because all agents use `run_in_background: true`, the system receives automatic notifications when each completes. No polling needed.
+
+```markdown
+## Analysts Running (${ROUND})
+
+| Name | Provider | Output | Status |
+|------|----------|--------|--------|
+{{- range .agents.roles.stock_analyzer }}
+| {{ .name }} | {{ .provider }} | .context/stock-analysis/${ROUND}-{{ .name }}.md | ⏳ running |
+{{- end }}
+
+I'll notify you as each analyst completes. When all are done, say "머지해줘" to merge.
+```
+
+If an agent produced less than 20 lines, report it as a failure.
+
+### Step 4: Merge (on request or when all complete)
+
+Read all `${ROUND}-*.md` analysis files and create `.context/stock-analysis/${ROUND}-merged.md`:
+
+```markdown
+# Stock Analysis: ${TICKER} (${ROUND})
+## Date: YYYY-MM-DD
+
+## Executive Summary
+- Overall rating: Strong Buy / Buy / Hold / Sell / Strong Sell
+- Confidence: High / Medium / Low
+- Key thesis in 2-3 sentences
+
+## Technical Analysis Summary
+- Trend direction and strength
+- Key support/resistance levels
+- Notable patterns or signals
+
+## Fundamental Analysis Summary
+- Valuation assessment (overvalued / fair / undervalued)
+- Key financial metrics and trends
+- Competitive positioning
+
+## Sentiment & Catalyst Summary
+- News sentiment (positive / neutral / negative)
+- Upcoming catalysts (earnings, events, regulatory)
+- Analyst consensus
+
+## Risk Factors
+- Technical risks
+- Fundamental risks
+- Macro/external risks
+
+## Conclusion & Action Items
+- Recommended action with timeframe
+- Key levels to watch
+- Re-evaluation triggers
+
+## Disclaimer
+This analysis is AI-generated for informational purposes only.
+Not financial advice. Always do your own research.
+```
+
+## Best Practices
+
+**DO:**
+- Always include the disclaimer in merged output
+- Use web search for current data — stale data is worse than no data
+- Cross-reference findings between analysts for higher confidence
+- Include specific numbers and sources
+- Flag conflicting signals between technical and fundamental views
+
+**DON'T:**
+- Present analysis as financial advice
+- Ignore contradictions between analysts
+- Skip the request file (analysts need clear scope)
+- Use data older than the analysis date without noting it

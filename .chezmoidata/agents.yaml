@@ -11,7 +11,7 @@ agents:
     opencode:
       type: cli
       command: opencode
-      notes: "Use -q to suppress spinner, -f text for plain output. Use --attach http://localhost:PORT to reuse running server."
+      notes: "Use --format default|json for output format. Use --attach http://localhost:PORT to reuse running server. Use --dir <path> for working directory."
 
   # Roles — named slots with provider assignment
   roles:
@@ -40,7 +40,7 @@ agents:
         provider: opencode
         for: "General implementation, boilerplate, multi-model flexibility"
         run: |
-          nohup opencode run -q -f text \
+          nohup opencode run \
             "Read task file .context/impl/${ROUND}-tasks.md and implement all described changes." \
             > .context/impl/${ROUND}-general-impl.log 2>/dev/null &
 
@@ -60,7 +60,7 @@ agents:
         for: "Technical specs, code design, algorithm design, documentation"
         run: |
           Bash({
-            command: "codex exec --full-auto --sandbox read-only \"${prompt}. Output the COMPLETE plan as markdown.\" 2>/dev/null | sed '/^[[:space:]]*$/d' > .context/plans/${ROUND}-spec-writer.md && wc -l .context/plans/${ROUND}-spec-writer.md",
+            command: "codex exec --full-auto --sandbox read-only --add-dir .context/plans -o .context/plans/${ROUND}-spec-writer.md \"${prompt}. Output the COMPLETE plan as markdown.\" > .context/plans/${ROUND}-spec-writer.log 2>&1 && wc -l .context/plans/${ROUND}-spec-writer.md",
             run_in_background: true,
             timeout: 600000
           })
@@ -69,10 +69,40 @@ agents:
         for: "Alternative perspectives, creative approaches, general planning"
         run: |
           Bash({
-            command: "opencode run -q -f text \"${prompt}\" > .context/plans/${ROUND}-alt-perspective.md 2>/dev/null && wc -l .context/plans/${ROUND}-alt-perspective.md",
+            command: "opencode run \"${prompt}\" > .context/plans/${ROUND}-alt-perspective.md 2>/dev/null && wc -l .context/plans/${ROUND}-alt-perspective.md",
             run_in_background: true,
             timeout: 600000
           })
+
+    stock_analyzer:
+      - name: technical-analyst
+        provider: claude
+        for: "Price action, chart patterns, technical indicators, support/resistance, trend analysis"
+        run: |
+          Agent({
+            subagent_type: "general-purpose",
+            prompt: `Read analysis request: .context/stock-analysis/${ROUND}-request.md
+          Perform technical analysis and save findings to .context/stock-analysis/${ROUND}-technical-analyst.md`,
+            run_in_background: true,
+            name: "technical-analyst"
+          })
+      - name: fundamental-analyst
+        provider: codex
+        for: "Financial statements, valuation ratios, earnings, revenue growth, competitive positioning"
+        run: |
+          nohup codex exec --full-auto \
+            --sandbox read-only \
+            --add-dir .context/stock-analysis \
+            -o ".context/stock-analysis/${ROUND}-fundamental-analyst.md" \
+            "Read analysis request at .context/stock-analysis/${ROUND}-request.md and perform fundamental analysis. Output complete analysis as markdown." \
+            > ".context/stock-analysis/${ROUND}-fundamental-analyst.log" 2>&1 &
+      - name: sentiment-analyst
+        provider: opencode
+        for: "News sentiment, social media trends, analyst ratings, market mood, catalysts"
+        run: |
+          nohup opencode run \
+            "Read .context/stock-analysis/${ROUND}-request.md and perform sentiment/news analysis. Cover recent news, analyst consensus, social sentiment, upcoming catalysts." \
+            > .context/stock-analysis/${ROUND}-sentiment-analyst.md 2>/dev/null &
 
     reviewer:
       - name: architecture-reviewer
@@ -100,6 +130,6 @@ agents:
         provider: opencode
         for: "Code quality, documentation gaps, DRY violations, API consistency"
         run: |
-          nohup opencode run -q -f text \
+          nohup opencode run \
             "Review the git diff between main and HEAD. Focus on code quality, documentation gaps, DRY violations, API consistency. Format as ## Category / ### Finding / severity + description + suggestion" \
             > .context/reviews/${ROUND}-quality-reviewer.md 2>/dev/null &
