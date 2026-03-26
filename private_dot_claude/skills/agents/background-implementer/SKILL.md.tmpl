@@ -1,0 +1,124 @@
+---
+name: implementing-in-background
+description: Orchestrates AI agents for parallel implementation in the background. Separates independent tasks from planning docs, each agent writes code directly. Context-safe with auto-save. Use for "백그라운드 구현", "bg impl", "병렬 구현", "구현해줘", "코드 작성해줘" requests.
+allowed-tools: Read, Bash, Grep, Glob, Task, Write, Edit, TodoWrite, AskUserQuestion
+priority: high
+tags: [implementation, background, parallel-execution, autonomous, multi-llm]
+---
+
+# Background Implementer
+
+Multi-LLM background implementation with context-safe parallel execution.
+
+## Quick Start
+
+```bash
+# 1. Analyze planning doc → extract tasks
+# 2. Create output dir: .context/impl/
+# 3. Determine round: R01, R02, ...
+# 4. Pick agents based on task characteristics
+# 5. Run agents in background → {round}-{name}.md
+# 6. Guide user to check results manually
+```
+
+## Output Convention
+
+```
+.context/impl/
+├── R01-tasks.md               # Round 1: task decomposition
+{{- range .agents.roles.implementer }}
+├── R01-{{ .name }}.md{{ " " }}            # {{ .provider }}: {{ .for }}
+{{- end }}
+├── R01-summary.md             # Round 1: merged summary
+└── R02-summary.md
+```
+
+**Round number** increments each implementation iteration:
+```bash
+mkdir -p .context/impl
+ROUND=$(printf "R%02d" $(( $(ls .context/impl/R*-*.md 2>/dev/null | sed 's/.*\/R\([0-9]*\)-.*/\1/' | sort -rn | head -1 | sed 's/^0*//') + 1 )))
+```
+
+## Agent Selection
+
+Pick agents based on task characteristics:
+
+| Name | Provider | Best For |
+|------|----------|----------|
+{{- range .agents.roles.implementer }}
+| **{{ .name }}** | {{ .provider }} | {{ .for }} |
+{{- end }}
+
+## Workflow
+
+### Step 1: Analyze & Decompose
+
+Extract from planning docs:
+- DB migrations (independent)
+- Models (depends on migration)
+- Handlers (depends on models)
+- Frontend (often independent)
+
+### Step 2: Wave Execution
+
+```
+Wave 1 (parallel): Migration + Frontend + Types
+Wave 2 (after migration): Models
+Wave 3 (after models): Handlers
+```
+
+### Step 3: Run Agents
+
+```bash
+mkdir -p .context/impl
+ROUND=$(printf "R%02d" $(( $(ls .context/impl/R*-*.md 2>/dev/null | sed 's/.*\/R\([0-9]*\)-.*/\1/' | sort -rn | head -1 | sed 's/^0*//') + 1 )))
+```
+
+Select agents matching the task, then launch with `run_in_background: true`:
+{{ range .agents.roles.implementer }}
+{{- $provider := index $.agents.providers .provider }}
+**{{ .name }}** ({{ .provider }}):
+```
+{{ .run }}```
+{{ if hasKey $provider "notes" }}> {{ $provider.notes | trim | replace "\n" " " }}
+{{ end }}
+{{- end }}
+
+### Step 4: Guide User (NO MONITORING)
+
+**IMPORTANT:** Don't poll for completion. Output this guide:
+
+```markdown
+## Agents Running (${ROUND})
+
+| Name | Provider | Output |
+|------|----------|--------|
+{{- range .agents.roles.implementer }}
+| {{ .name }} | {{ .provider }} | .context/impl/${ROUND}-{{ .name }}.md |
+{{- end }}
+
+Check results manually:
+- `ls .context/impl/${ROUND}-*.md`
+- `git status`
+
+When done, ask me to "확인해줘" or "빌드 체크"
+```
+
+## Token Efficiency
+
+1. **Input**: Write task instructions to `.md` file, pass path only
+2. **Output**: Agents save structured markdown summaries
+3. **Verify**: Read summaries only, not full output
+
+## Best Practices
+
+**DO:**
+- Match agent to task characteristics (see Agent Selection table)
+- Use markdown files for task instructions
+- Respect dependency order (migration → models → handlers)
+- Let user check completion manually
+
+**DON'T:**
+- Poll TaskOutput repeatedly (token waste)
+- Run 10+ agents simultaneously
+- Have multiple agents edit same file

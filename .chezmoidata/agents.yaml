@@ -1,0 +1,105 @@
+agents:
+  # Provider definitions — shared CLI config only
+  providers:
+    claude:
+      type: builtin
+      notes: "Runs as Task/Agent subagent inside Claude Code — no external CLI."
+    codex:
+      type: cli
+      command: codex
+      notes: "Use -C dir for working directory. Use -o file for last message. Use --add-dir <path> for extra write access. For parallel runs, use git worktrees."
+    opencode:
+      type: cli
+      command: opencode
+      notes: "Use -q to suppress spinner, -f text for plain output. Use --attach http://localhost:PORT to reuse running server."
+
+  # Roles — named slots with provider assignment
+  roles:
+    implementer:
+      - name: core-logic
+        provider: claude
+        for: "Complex logic, APIs, multi-file changes (3+ files), deep codebase understanding"
+        run: |
+          Agent({
+            subagent_type: "general-purpose",
+            prompt: `Read task file: .context/impl/${ROUND}-tasks.md
+          Implement the assigned tasks and save notes to .context/impl/${ROUND}-core-logic.md`,
+            run_in_background: true
+          })
+      - name: code-gen
+        provider: codex
+        for: "DB migrations, models, focused code generation, single-file tasks"
+        run: |
+          nohup codex exec --full-auto \
+            -C <worktree-path> \
+            --add-dir "${PROJ_DIR}/.context/impl" \
+            -o "${PROJ_DIR}/.context/impl/${ROUND}-code-gen.md" \
+            "Read task file at ${PROJ_DIR}/.context/impl/${ROUND}-tasks.md and implement all described changes." \
+            > "${PROJ_DIR}/.context/impl/${ROUND}-code-gen.log" 2>&1 &
+      - name: general-impl
+        provider: opencode
+        for: "General implementation, boilerplate, multi-model flexibility"
+        run: |
+          nohup opencode run -q -f text \
+            "Read task file .context/impl/${ROUND}-tasks.md and implement all described changes." \
+            > .context/impl/${ROUND}-general-impl.log 2>/dev/null &
+
+    planner:
+      - name: architect
+        provider: claude
+        for: "Complex analysis, architecture, deep codebase reading, trade-off evaluation"
+        run: |
+          Agent({
+            subagent_type: "general-purpose",
+            prompt: "${prompt}\nSave output to .context/plans/${ROUND}-architect.md",
+            run_in_background: true,
+            name: "architect-planner"
+          })
+      - name: spec-writer
+        provider: codex
+        for: "Technical specs, code design, algorithm design, documentation"
+        run: |
+          Bash({
+            command: "codex exec --full-auto --sandbox read-only \"${prompt}. Output the COMPLETE plan as markdown.\" 2>/dev/null | sed '/^[[:space:]]*$/d' > .context/plans/${ROUND}-spec-writer.md && wc -l .context/plans/${ROUND}-spec-writer.md",
+            run_in_background: true,
+            timeout: 600000
+          })
+      - name: alt-perspective
+        provider: opencode
+        for: "Alternative perspectives, creative approaches, general planning"
+        run: |
+          Bash({
+            command: "opencode run -q -f text \"${prompt}\" > .context/plans/${ROUND}-alt-perspective.md 2>/dev/null && wc -l .context/plans/${ROUND}-alt-perspective.md",
+            run_in_background: true,
+            timeout: 600000
+          })
+
+    reviewer:
+      - name: architecture-reviewer
+        provider: claude
+        for: "Architecture, security (OWASP), SOLID violations, backward compatibility"
+        run: |
+          Agent({
+            subagent_type: "general-purpose",
+            prompt: `Review the code changes. Focus on security (OWASP), architecture (SOLID), API design, data integrity.
+          Save to .context/reviews/${ROUND}-architecture-reviewer.md
+          Format: ## Category / ### Finding / Severity / Description / Suggestion`,
+            run_in_background: true
+          })
+      - name: race-reviewer
+        provider: codex
+        for: "Race conditions, edge cases, concurrency bugs, error handling, type safety"
+        run: |
+          nohup codex exec --full-auto \
+            --add-dir .context/reviews \
+            "Review the git diff between main and HEAD. Focus on race conditions, concurrency bugs, edge cases, error handling, type safety. \
+            Save review to .context/reviews/${ROUND}-race-reviewer.md \
+            Format: ## Category / ### Finding / severity + description + suggestion" \
+            > .context/reviews/${ROUND}-race-reviewer.log 2>&1 &
+      - name: quality-reviewer
+        provider: opencode
+        for: "Code quality, documentation gaps, DRY violations, API consistency"
+        run: |
+          nohup opencode run -q -f text \
+            "Review the git diff between main and HEAD. Focus on code quality, documentation gaps, DRY violations, API consistency. Format as ## Category / ### Finding / severity + description + suggestion" \
+            > .context/reviews/${ROUND}-quality-reviewer.md 2>/dev/null &

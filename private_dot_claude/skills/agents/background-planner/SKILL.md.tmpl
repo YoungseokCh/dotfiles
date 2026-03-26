@@ -1,0 +1,110 @@
+---
+name: planning-in-background
+description: Orchestrates AI agents for parallel planning in the background with auto-save. Agents continue running even when session hits context limits. Use for "백그라운드 기획", "bg plan", "병렬 기획", "멀티 AI 기획", "기획해줘", "N명이 기획", "계획", "플래닝", "plan", "설계" requests.
+allowed-tools: Read, Bash, Grep, Glob, Task, Write, Edit, TodoWrite, AskUserQuestion, Agent
+priority: high
+tags: [planning, background, parallel-execution, autonomous, multi-llm]
+---
+
+# Background Planner
+
+Multi-LLM parallel planning with context-safe auto-save.
+
+## Quick Start
+
+```bash
+# 1. Parse topic and perspectives
+# 2. Create: .context/plans/
+# 3. Determine round: R01, R02, ...
+# 4. Pick agents based on planning needs
+# 5. Run agents in background → {round}-{name}.md
+# 6. Track agent completion automatically
+# 7. Merge when all agents complete (or on user request)
+```
+
+## Output Convention
+
+```
+.context/plans/
+{{- range .agents.roles.planner }}
+├── R01-{{ .name }}.md{{ " " }}            # {{ .provider }}: {{ .for }}
+{{- end }}
+├── R01-merged.md              # Round 1: merged plan
+└── R02-merged.md
+```
+
+**Round number** increments each planning iteration:
+```bash
+mkdir -p .context/plans
+ROUND=$(printf "R%02d" $(( $(ls .context/plans/R*-*.md 2>/dev/null | sed 's/.*\/R\([0-9]*\)-.*/\1/' | sort -rn | head -1 | sed 's/^0*//') + 1 )))
+```
+
+## Agent Selection
+
+Pick agents based on planning needs:
+
+| Name | Provider | Best For |
+|------|----------|----------|
+{{- range .agents.roles.planner }}
+| **{{ .name }}** | {{ .provider }} | {{ .for }} |
+{{- end }}
+
+> **Planner note:** All CLI agents should use **read-only** mode. Planners analyze — they don't write files.
+
+## Workflow
+
+### Step 1: Setup
+
+```bash
+mkdir -p .context/plans
+ROUND=$(printf "R%02d" $(( $(ls .context/plans/R*-*.md 2>/dev/null | sed 's/.*\/R\([0-9]*\)-.*/\1/' | sort -rn | head -1 | sed 's/^0*//') + 1 )))
+```
+
+### Step 2: Run Agents (all with run_in_background)
+
+**IMPORTANT**: Use `run_in_background: true` on ALL agent launches. This provides automatic completion notifications without polling.
+{{ range .agents.roles.planner }}
+{{- $provider := index $.agents.providers .provider }}
+**{{ .name }}** ({{ .provider }}):
+```
+{{ .run }}```
+{{ if hasKey $provider "notes" }}> {{ $provider.notes | trim | replace "\n" " " }}
+{{ end }}
+{{- end }}
+
+### Step 3: Track Completion (AUTOMATIC)
+
+Because all agents use `run_in_background: true`, the planner receives automatic notifications when each completes. No polling needed.
+
+```markdown
+## Planning Agents Running (${ROUND})
+
+| Name | Provider | Output | Status |
+|------|----------|--------|--------|
+{{- range .agents.roles.planner }}
+| {{ .name }} | {{ .provider }} | .context/plans/${ROUND}-{{ .name }}.md | ⏳ running |
+{{- end }}
+
+I'll notify you as each agent completes. When all are done, say "머지해줘" to merge.
+```
+
+If an agent produced less than 20 lines, report it as a failure.
+
+### Step 4: Merge (on request or when all complete)
+
+Read all `${ROUND}-*.md` plan files and create `.context/plans/${ROUND}-merged.md`:
+- Compare perspectives
+- Highlight agreements/conflicts
+- Synthesize final recommendation
+
+## Best Practices
+
+**DO:**
+- Use 2-4 agents for diverse perspectives
+- Match agent to planning need (see Agent Selection table)
+- Always use `run_in_background: true` for automatic tracking
+
+**DON'T:**
+- Poll for completion (notifications are automatic)
+- Merge before all agents complete
+- Let CLI agents write files (use read-only mode for planning)

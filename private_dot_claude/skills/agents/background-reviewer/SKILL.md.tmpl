@@ -1,0 +1,142 @@
+---
+name: background-reviewer
+description: Orchestrates multi-LLM parallel code review. Each named reviewer focuses on a specific concern using an assigned provider. Use for "코드 리뷰", "리뷰해줘", "bg review", "멀티 리뷰", "background review", "페르소나 리뷰" requests.
+allowed-tools: Read, Bash, Grep, Glob, Task, Write, Edit, AskUserQuestion
+priority: high
+tags: [review, code-review, background, parallel-execution, multi-llm, quality, persona]
+---
+
+# Background Reviewer
+
+Multi-LLM parallel code review with named reviewers.
+
+## Quick Start
+
+```bash
+# 1. Determine review scope and round number
+# 2. Create: .context/reviews/
+# 3. Launch named reviewers in background
+# 4. Each reviewer saves findings to {round}-{name}.md
+# 5. Merge into prioritized findings when ready
+```
+
+## Output Convention
+
+```
+.context/reviews/
+{{- range .agents.roles.reviewer }}
+├── R01-{{ .name }}.md{{ " " }}    # {{ .provider }}: {{ .for }}
+{{- end }}
+├── R01-merged.md               # Round 1: merged findings
+└── R02-merged.md
+```
+
+Detect next round:
+```bash
+ROUND=$(printf "R%02d" $(( $(ls .context/reviews/R*-*.md 2>/dev/null | sed 's/.*\/R\([0-9]*\)-.*/\1/' | sort -rn | head -1 | sed 's/^0*//') + 1 )))
+```
+
+## Reviewers
+
+| Name | Provider | Focus |
+|------|----------|-------|
+{{- range .agents.roles.reviewer }}
+| **{{ .name }}** | {{ .provider }} | {{ .for }} |
+{{- end }}
+
+## Review Scopes
+
+### 1. Branch Diff Review (most common)
+```bash
+git diff main...HEAD > /tmp/review-diff.txt
+```
+
+### 2. Uncommitted Changes Review
+```bash
+git diff > /tmp/review-diff.txt
+git diff --cached >> /tmp/review-diff.txt
+```
+
+## Workflow
+
+### Step 1: Setup Review Session
+
+```bash
+mkdir -p .context/reviews
+ROUND=$(printf "R%02d" $(( $(ls .context/reviews/R*-*.md 2>/dev/null | sed 's/.*\/R\([0-9]*\)-.*/\1/' | sort -rn | head -1 | sed 's/^0*//') + 1 )))
+git diff main...HEAD > ".context/reviews/${ROUND}-diff.patch"
+git diff --name-only main...HEAD > ".context/reviews/${ROUND}-changed-files.txt"
+```
+
+### Step 2: Create Review Brief
+
+Write `.context/reviews/${ROUND}-brief.md`:
+```markdown
+# Review Brief (${ROUND})
+- Branch: feat/dashboard
+- Base: main
+- Changed files: (list)
+- Focus areas: (optional user-specified)
+```
+
+### Step 3: Launch Reviewers
+{{ range .agents.roles.reviewer }}
+{{- $provider := index $.agents.providers .provider }}
+**{{ .name }}** ({{ .provider }} — {{ .for }}):
+```
+{{ .run }}```
+{{ if hasKey $provider "notes" }}> {{ $provider.notes | trim | replace "\n" " " }}
+{{ end }}
+{{- end }}
+
+### Step 4: Guide User
+
+```markdown
+## Reviewers Running (${ROUND})
+
+| Name | Provider | Output |
+|------|----------|--------|
+{{- range .agents.roles.reviewer }}
+| {{ .name }} | {{ .provider }} | .context/reviews/${ROUND}-{{ .name }}.md |
+{{- end }}
+
+Check progress: `ls .context/reviews/${ROUND}-*.md`
+When ready: "머지해줘" or "리뷰 결과 확인"
+```
+
+### Step 5: Merge Reviews (on request)
+
+Read all `${ROUND}-*.md` review files and create `.context/reviews/${ROUND}-merged.md`:
+
+```markdown
+# Code Review Summary (${ROUND})
+
+## Critical Findings (must fix)
+## High Priority
+## Medium Priority
+## Low Priority / Suggestions
+## Agreements (multiple reviewers flagged)
+## Statistics
+```
+
+## Best Practices
+
+**DO:**
+- Launch all reviewers for comprehensive coverage
+- Generate diff/file lists before launching
+- Deduplicate when merging (same issue from multiple reviewers = higher confidence)
+
+**DON'T:**
+- Skip the review brief (reviewers need context)
+- Run review on 1000+ line diffs without splitting
+- Ignore findings that multiple reviewers agree on
+- Auto-fix critical findings without human review
+
+## Severity Guidelines
+
+| Severity | Definition | Action |
+|----------|-----------|--------|
+| **Critical** | Security vulnerability, data loss risk, crash bug | Must fix before merge |
+| **High** | Logic error, missing validation, breaking change | Should fix before merge |
+| **Medium** | Code smell, poor naming, missing error handling | Fix in follow-up |
+| **Low** | Style issue, minor optimization, suggestion | Optional |
