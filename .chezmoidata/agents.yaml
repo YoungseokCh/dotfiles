@@ -4,14 +4,10 @@ agents:
     claude:
       type: builtin
       notes: "Runs as Task/Agent subagent inside Claude Code — no external CLI."
-    codex:
-      type: cli
-      command: codex
-      notes: "Use -C dir for working directory. Use -o file for last message. Use --add-dir <path> for extra write access. For parallel runs, use git worktrees."
     opencode:
       type: cli
       command: opencode
-      notes: "Use --format default|json for output format. Use --attach http://localhost:PORT to reuse running server. Use --dir <path> for working directory."
+      notes: "Use --format json + jq to extract text output. Use --attach http://localhost:PORT to reuse running server. Use --dir <path> for working directory."
 
   # Roles — named slots with provider assignment
   roles:
@@ -27,22 +23,22 @@ agents:
             run_in_background: true
           })
       - name: code-gen
-        provider: codex
+        provider: opencode
         for: "DB migrations, models, focused code generation, single-file tasks"
         run: |
-          nohup codex exec --full-auto \
-            -C <worktree-path> \
-            --add-dir "${PROJ_DIR}/.context/impl" \
-            -o "${PROJ_DIR}/.context/impl/${ROUND}-code-gen.md" \
+          opencode run --format json \
+            --dir <worktree-path> \
             "Read task file at ${PROJ_DIR}/.context/impl/${ROUND}-tasks.md and implement all described changes." \
-            > "${PROJ_DIR}/.context/impl/${ROUND}-code-gen.log" 2>&1 &
+            2>/dev/null | jq -rs '[.[] | select(.type=="text") | .part.text] | join("\n")' \
+            > ${PROJ_DIR}/.context/impl/${ROUND}-code-gen.md
       - name: general-impl
         provider: opencode
         for: "General implementation, boilerplate, multi-model flexibility"
         run: |
-          nohup opencode run \
+          opencode run --format json \
             "Read task file .context/impl/${ROUND}-tasks.md and implement all described changes." \
-            > .context/impl/${ROUND}-general-impl.log 2>/dev/null &
+            2>/dev/null | jq -rs '[.[] | select(.type=="text") | .part.text] | join("\n")' \
+            > .context/impl/${ROUND}-general-impl.md
 
     planner:
       - name: architect
@@ -56,11 +52,11 @@ agents:
             name: "architect-planner"
           })
       - name: spec-writer
-        provider: codex
+        provider: opencode
         for: "Technical specs, code design, algorithm design, documentation"
         run: |
           Bash({
-            command: "codex exec --full-auto --sandbox read-only --add-dir .context/plans -o .context/plans/${ROUND}-spec-writer.md \"${prompt}. Output the COMPLETE plan as markdown.\" > .context/plans/${ROUND}-spec-writer.log 2>&1 && wc -l .context/plans/${ROUND}-spec-writer.md",
+            command: "opencode run --format json \"${prompt}. Output the COMPLETE plan as markdown.\" 2>/dev/null | jq -rs '[.[] | select(.type==\"text\") | .part.text] | join(\"\\n\")' > .context/plans/${ROUND}-spec-writer.md && wc -l .context/plans/${ROUND}-spec-writer.md",
             run_in_background: true,
             timeout: 600000
           })
@@ -69,7 +65,7 @@ agents:
         for: "Alternative perspectives, creative approaches, general planning"
         run: |
           Bash({
-            command: "opencode run \"${prompt}\" > .context/plans/${ROUND}-alt-perspective.md 2>/dev/null && wc -l .context/plans/${ROUND}-alt-perspective.md",
+            command: "opencode run --format json \"${prompt}\" 2>/dev/null | jq -rs '[.[] | select(.type==\"text\") | .part.text] | join(\"\\n\")' > .context/plans/${ROUND}-alt-perspective.md && wc -l .context/plans/${ROUND}-alt-perspective.md",
             run_in_background: true,
             timeout: 600000
           })
@@ -87,22 +83,21 @@ agents:
             name: "technical-analyst"
           })
       - name: fundamental-analyst
-        provider: codex
+        provider: opencode
         for: "Financial statements, valuation ratios, earnings, revenue growth, competitive positioning"
         run: |
-          nohup codex exec --full-auto \
-            --sandbox read-only \
-            --add-dir .context/stock-analysis \
-            -o ".context/stock-analysis/${ROUND}-fundamental-analyst.md" \
-            "Read analysis request at .context/stock-analysis/${ROUND}-request.md and perform fundamental analysis. Output complete analysis as markdown." \
-            > ".context/stock-analysis/${ROUND}-fundamental-analyst.log" 2>&1 &
+          opencode run --format json \
+            "Read .context/stock-analysis/${ROUND}-request.md and perform fundamental analysis. Cover financial statements, valuation ratios, earnings, revenue growth, competitive positioning. Output complete analysis as markdown." \
+            2>/dev/null | jq -rs '[.[] | select(.type=="text") | .part.text] | join("\n")' \
+            > .context/stock-analysis/${ROUND}-fundamental-analyst.md
       - name: sentiment-analyst
         provider: opencode
         for: "News sentiment, social media trends, analyst ratings, market mood, catalysts"
         run: |
-          nohup opencode run \
+          opencode run --format json \
             "Read .context/stock-analysis/${ROUND}-request.md and perform sentiment/news analysis. Cover recent news, analyst consensus, social sentiment, upcoming catalysts." \
-            > .context/stock-analysis/${ROUND}-sentiment-analyst.md 2>/dev/null &
+            2>/dev/null | jq -rs '[.[] | select(.type=="text") | .part.text] | join("\n")' \
+            > .context/stock-analysis/${ROUND}-sentiment-analyst.md
 
     reviewer:
       - name: architecture-reviewer
@@ -117,19 +112,18 @@ agents:
             run_in_background: true
           })
       - name: race-reviewer
-        provider: codex
+        provider: opencode
         for: "Race conditions, edge cases, concurrency bugs, error handling, type safety"
         run: |
-          nohup codex exec --full-auto \
-            --add-dir .context/reviews \
-            "Review the git diff between main and HEAD. Focus on race conditions, concurrency bugs, edge cases, error handling, type safety. \
-            Save review to .context/reviews/${ROUND}-race-reviewer.md \
-            Format: ## Category / ### Finding / severity + description + suggestion" \
-            > .context/reviews/${ROUND}-race-reviewer.log 2>&1 &
+          opencode run --format json \
+            "Review the git diff between main and HEAD. Focus on race conditions, concurrency bugs, edge cases, error handling, type safety. Format: ## Category / ### Finding / severity + description + suggestion" \
+            2>/dev/null | jq -rs '[.[] | select(.type=="text") | .part.text] | join("\n")' \
+            > .context/reviews/${ROUND}-race-reviewer.md
       - name: quality-reviewer
         provider: opencode
         for: "Code quality, documentation gaps, DRY violations, API consistency"
         run: |
-          nohup opencode run \
+          opencode run --format json \
             "Review the git diff between main and HEAD. Focus on code quality, documentation gaps, DRY violations, API consistency. Format as ## Category / ### Finding / severity + description + suggestion" \
-            > .context/reviews/${ROUND}-quality-reviewer.md 2>/dev/null &
+            2>/dev/null | jq -rs '[.[] | select(.type=="text") | .part.text] | join("\n")' \
+            > .context/reviews/${ROUND}-quality-reviewer.md
