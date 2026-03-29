@@ -1,5 +1,8 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "{file:~/.config/opencode/AGENTS.md}"
+  ],
   "mcp": {
     "chrome-devtools": {
       "type": "local",
@@ -14,7 +17,6 @@
     }
   },
   "plugin": [
-    "oh-my-opencode-slim",
 	"opencode-wakatime"
   ],
 }

@@ -1,0 +1,117 @@
+---
+name: background-planner
+description: Orchestrates AI agents for parallel planning in the background with auto-save. Agents continue running even when session hits context limits. Use for "백그라운드 기획", "bg plan", "병렬 기획", "멀티 AI 기획", "기획해줘", "N명이 기획", "계획", "플래닝", "plan", "설계" requests.
+compatibility: opencode
+metadata:
+  priority: high
+  tags: planning,background,parallel-execution,multi-llm
+---
+
+# Background Planner
+
+Multi-LLM parallel planning with context-safe auto-save.
+
+## Quick Start
+
+```bash
+# 1. Parse topic and perspectives
+# 2. Create: .context/plans/
+# 3. Determine round: R01, R02, ...
+# 4. Pick agents based on planning needs
+# 5. Run agents in background → {round}-{name}.md
+# 6. Track agent completion automatically
+# 7. Merge when all agents complete (or on user request)
+```
+
+## Output Convention
+
+```
+.context/plans/
+{{- range .agents.roles.planner }}
+├── R01-{{ .name }}.md            # {{ .for }}
+{{- end }}
+├── R01-merged.md              # Round 1: merged plan
+└── R02-merged.md
+```
+
+**Round number** increments each planning iteration:
+```bash
+mkdir -p .context/plans
+ROUND=$(printf "R%02d" $(( $(ls .context/plans/R*-*.md 2>/dev/null | sed 's/.*\/R\([0-9]*\)-.*/\1/' | sort -rn | head -1 | sed 's/^0*//') + 1 )))
+```
+
+## Agent Selection
+
+Pick agents based on planning needs:
+
+| Name | Provider | Best For |
+|------|----------|----------|
+{{- range .agents.roles.planner }}
+| **{{ .name }}** | {{ .provider }} | {{ .for }} |
+{{- end }}
+
+> **Planner note:** All agents should operate in **read-only** mode. Planners analyze — they don't write project files.
+
+## Workflow
+
+### Step 1: Setup
+
+```bash
+mkdir -p .context/plans
+ROUND=$(printf "R%02d" $(( $(ls .context/plans/R*-*.md 2>/dev/null | sed 's/.*\/R\([0-9]*\)-.*/\1/' | sort -rn | head -1 | sed 's/^0*//') + 1 )))
+```
+
+### Step 2: Run Agents (all in background)
+
+**IMPORTANT**: Launch ALL agents in background for parallel execution.
+{{ range .agents.roles.planner }}
+{{- if eq .provider "opencode" }}
+**{{ .name }}** (native — {{ .for }}):
+Launch a **task subagent** in background with this prompt:
+> ${prompt}. Output the COMPLETE plan as markdown. Save to `.context/plans/${ROUND}-{{ .name }}.md`.
+{{- else }}
+**{{ .name }}** (Claude CLI — {{ .for }}):
+```bash
+claude -p "${prompt}. Output the COMPLETE plan as markdown." \
+  --output-format text > .context/plans/${ROUND}-{{ .name }}.md 2>/dev/null &
+```
+{{- end }}
+{{ end }}
+
+### Step 3: Track Completion
+
+Report status to the user:
+
+```markdown
+## Planning Agents Running (${ROUND})
+
+| Name | Provider | Output | Status |
+|------|----------|--------|--------|
+{{- range .agents.roles.planner }}
+| {{ .name }} | {{ .provider }} | .context/plans/${ROUND}-{{ .name }}.md | ⏳ running |
+{{- end }}
+
+Check progress: `ls -la .context/plans/${ROUND}-*.md`
+When ready: "머지해줘" to merge perspectives.
+```
+
+If an agent produced less than 20 lines, report it as a failure.
+
+### Step 4: Merge (on request or when all complete)
+
+Read all `${ROUND}-*.md` plan files and create `.context/plans/${ROUND}-merged.md`:
+- Compare perspectives
+- Highlight agreements/conflicts
+- Synthesize final recommendation
+
+## Best Practices
+
+**DO:**
+- Use 2-4 agents for diverse perspectives
+- Match agent to planning need (see Agent Selection table)
+- Launch all agents in background for parallel execution
+
+**DON'T:**
+- Poll for completion repeatedly (token waste)
+- Merge before all agents complete
+- Let agents write project files (planning is read-only)
