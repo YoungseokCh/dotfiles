@@ -1,0 +1,4 @@
+# ~/.config/ghostty/config
+shell-integration-features = ssh-terminfo,ssh-env
+
+theme = Zenburn
