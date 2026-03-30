@@ -17,8 +17,8 @@
     }
   },
   "plugin": [
-	"opencode-wakatime",
-	"opencode-cmux",
-	"opencode-remote-cmux"
-  ],
+    "opencode-wakatime",
+    "opencode-cmux",
+    "opencode-remote-cmux"
+  ]
 }
