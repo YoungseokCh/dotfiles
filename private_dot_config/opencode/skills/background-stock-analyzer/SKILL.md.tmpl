@@ -28,7 +28,7 @@ Multi-LLM parallel stock analysis with technical, fundamental, and sentiment per
 ```
 .context/stock-analysis/
 ├── R01-request.md                # Analysis request and context
-{{- range .agents.roles.stock_analyzer }}
+{{- range .agentsOpencode.roles.stock_analyzer }}
 ├── R01-{{ .name }}.md            # {{ .for }}
 {{- end }}
 ├── R01-merged.md                 # Round 1: merged analysis
@@ -45,7 +45,7 @@ ROUND=$(printf "R%02d" $(( $(ls .context/stock-analysis/R*-*.md 2>/dev/null | se
 
 | Name | Provider | Focus |
 |------|----------|-------|
-{{- range .agents.roles.stock_analyzer }}
+{{- range .agentsOpencode.roles.stock_analyzer }}
 | **{{ .name }}** | {{ .provider }} | {{ .for }} |
 {{- end }}
 
@@ -77,7 +77,7 @@ Write `.context/stock-analysis/${ROUND}-request.md`:
 ### Step 2: Launch Analysts (all in background)
 
 **IMPORTANT**: Launch ALL agents in background for parallel execution. Each analyst should use web search to gather current market data.
-{{ range .agents.roles.stock_analyzer }}
+{{ range .agentsOpencode.roles.stock_analyzer }}
 {{- if eq .provider "opencode" }}
 **{{ .name }}** (native — {{ .for }}):
 Launch a **task subagent** in background with this prompt:
@@ -100,7 +100,7 @@ Report status to the user:
 
 | Name | Provider | Output | Status |
 |------|----------|--------|--------|
-{{- range .agents.roles.stock_analyzer }}
+{{- range .agentsOpencode.roles.stock_analyzer }}
 | {{ .name }} | {{ .provider }} | .context/stock-analysis/${ROUND}-{{ .name }}.md | ⏳ running |
 {{- end }}
 

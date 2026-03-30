@@ -27,7 +27,7 @@ Multi-LLM background implementation with context-safe parallel execution.
 ```
 .context/impl/
 ├── R01-tasks.md               # Round 1: task decomposition
-{{- range .agents.roles.implementer }}
+{{- range .agentsOpencode.roles.implementer }}
 ├── R01-{{ .name }}.md            # {{ .for }}
 {{- end }}
 ├── R01-summary.md             # Round 1: merged summary
@@ -46,7 +46,7 @@ Pick agents based on task characteristics:
 
 | Name | Provider | Best For |
 |------|----------|----------|
-{{- range .agents.roles.implementer }}
+{{- range .agentsOpencode.roles.implementer }}
 | **{{ .name }}** | {{ .provider }} | {{ .for }} |
 {{- end }}
 
@@ -76,7 +76,7 @@ ROUND=$(printf "R%02d" $(( $(ls .context/impl/R*-*.md 2>/dev/null | sed 's/.*\/R
 ```
 
 Select agents matching the task, then launch in background:
-{{ range .agents.roles.implementer }}
+{{ range .agentsOpencode.roles.implementer }}
 {{- if eq .provider "opencode" }}
 **{{ .name }}** (native — {{ .for }}):
 Launch a **task subagent** in background with this prompt:
@@ -99,7 +99,7 @@ claude -p "Read task file at $(pwd)/.context/impl/${ROUND}-tasks.md. Implement a
 
 | Name | Provider | Output |
 |------|----------|--------|
-{{- range .agents.roles.implementer }}
+{{- range .agentsOpencode.roles.implementer }}
 | {{ .name }} | {{ .provider }} | .context/impl/${ROUND}-{{ .name }}.md |
 {{- end }}
 

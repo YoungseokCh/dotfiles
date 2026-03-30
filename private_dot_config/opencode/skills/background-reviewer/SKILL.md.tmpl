@@ -25,7 +25,7 @@ Multi-LLM parallel code review with named reviewers.
 
 ```
 .context/reviews/
-{{- range .agents.roles.reviewer }}
+{{- range .agentsOpencode.roles.reviewer }}
 ├── R01-{{ .name }}.md    # {{ .for }}
 {{- end }}
 ├── R01-merged.md               # Round 1: merged findings
@@ -42,7 +42,7 @@ ROUND=$(printf "R%02d" $(( $(ls .context/reviews/R*-*.md 2>/dev/null | sed 's/.*
 
 | Name | Provider | Focus |
 |------|----------|-------|
-{{- range .agents.roles.reviewer }}
+{{- range .agentsOpencode.roles.reviewer }}
 | **{{ .name }}** | {{ .provider }} | {{ .for }} |
 {{- end }}
 
@@ -82,7 +82,7 @@ Write `.context/reviews/${ROUND}-brief.md`:
 ```
 
 ### Step 3: Launch Reviewers
-{{ range .agents.roles.reviewer }}
+{{ range .agentsOpencode.roles.reviewer }}
 {{- if eq .provider "opencode" }}
 **{{ .name }}** (native — {{ .for }}):
 Launch a **task subagent** in background with this prompt:
@@ -103,7 +103,7 @@ claude -p "Review the git diff between main and HEAD. Focus on: {{ .for }}. Form
 
 | Name | Provider | Output |
 |------|----------|--------|
-{{- range .agents.roles.reviewer }}
+{{- range .agentsOpencode.roles.reviewer }}
 | {{ .name }} | {{ .provider }} | .context/reviews/${ROUND}-{{ .name }}.md |
 {{- end }}
 

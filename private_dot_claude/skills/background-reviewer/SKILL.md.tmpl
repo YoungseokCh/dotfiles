@@ -24,7 +24,7 @@ Multi-LLM parallel code review with named reviewers.
 
 ```
 .context/reviews/
-{{- range .agents.roles.reviewer }}
+{{- range .agentsClaude.roles.reviewer }}
 ├── R01-{{ .name }}.md{{ " " }}    # {{ .provider }}: {{ .for }}
 {{- end }}
 ├── R01-merged.md               # Round 1: merged findings
@@ -40,7 +40,7 @@ ROUND=$(printf "R%02d" $(( $(ls .context/reviews/R*-*.md 2>/dev/null | sed 's/.*
 
 | Name | Provider | Focus |
 |------|----------|-------|
-{{- range .agents.roles.reviewer }}
+{{- range .agentsClaude.roles.reviewer }}
 | **{{ .name }}** | {{ .provider }} | {{ .for }} |
 {{- end }}
 
@@ -80,8 +80,8 @@ Write `.context/reviews/${ROUND}-brief.md`:
 ```
 
 ### Step 3: Launch Reviewers
-{{ range .agents.roles.reviewer }}
-{{- $provider := index $.agents.providers .provider }}
+{{ range .agentsClaude.roles.reviewer }}
+{{- $provider := index $.agentsClaude.providers .provider }}
 **{{ .name }}** ({{ .provider }} — {{ .for }}):
 ```
 {{ .run }}```
@@ -96,7 +96,7 @@ Write `.context/reviews/${ROUND}-brief.md`:
 
 | Name | Provider | Output |
 |------|----------|--------|
-{{- range .agents.roles.reviewer }}
+{{- range .agentsClaude.roles.reviewer }}
 | {{ .name }} | {{ .provider }} | .context/reviews/${ROUND}-{{ .name }}.md |
 {{- end }}
 

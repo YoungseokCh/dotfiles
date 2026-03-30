@@ -27,7 +27,7 @@ Multi-LLM parallel planning with context-safe auto-save.
 
 ```
 .context/plans/
-{{- range .agents.roles.planner }}
+{{- range .agentsOpencode.roles.planner }}
 ├── R01-{{ .name }}.md            # {{ .for }}
 {{- end }}
 ├── R01-merged.md              # Round 1: merged plan
@@ -46,7 +46,7 @@ Pick agents based on planning needs:
 
 | Name | Provider | Best For |
 |------|----------|----------|
-{{- range .agents.roles.planner }}
+{{- range .agentsOpencode.roles.planner }}
 | **{{ .name }}** | {{ .provider }} | {{ .for }} |
 {{- end }}
 
@@ -64,7 +64,7 @@ ROUND=$(printf "R%02d" $(( $(ls .context/plans/R*-*.md 2>/dev/null | sed 's/.*\/
 ### Step 2: Run Agents (all in background)
 
 **IMPORTANT**: Launch ALL agents in background for parallel execution.
-{{ range .agents.roles.planner }}
+{{ range .agentsOpencode.roles.planner }}
 {{- if eq .provider "opencode" }}
 **{{ .name }}** (native — {{ .for }}):
 Launch a **task subagent** in background with this prompt:
@@ -87,7 +87,7 @@ Report status to the user:
 
 | Name | Provider | Output | Status |
 |------|----------|--------|--------|
-{{- range .agents.roles.planner }}
+{{- range .agentsOpencode.roles.planner }}
 | {{ .name }} | {{ .provider }} | .context/plans/${ROUND}-{{ .name }}.md | ⏳ running |
 {{- end }}
 

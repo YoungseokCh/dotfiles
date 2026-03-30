@@ -26,7 +26,7 @@ Multi-LLM background implementation with context-safe parallel execution.
 ```
 .context/impl/
 ├── R01-tasks.md               # Round 1: task decomposition
-{{- range .agents.roles.implementer }}
+{{- range .agentsClaude.roles.implementer }}
 ├── R01-{{ .name }}.md{{ " " }}            # {{ .provider }}: {{ .for }}
 {{- end }}
 ├── R01-summary.md             # Round 1: merged summary
@@ -45,7 +45,7 @@ Pick agents based on task characteristics:
 
 | Name | Provider | Best For |
 |------|----------|----------|
-{{- range .agents.roles.implementer }}
+{{- range .agentsClaude.roles.implementer }}
 | **{{ .name }}** | {{ .provider }} | {{ .for }} |
 {{- end }}
 
@@ -75,8 +75,8 @@ ROUND=$(printf "R%02d" $(( $(ls .context/impl/R*-*.md 2>/dev/null | sed 's/.*\/R
 ```
 
 Select agents matching the task, then launch with `run_in_background: true`:
-{{ range .agents.roles.implementer }}
-{{- $provider := index $.agents.providers .provider }}
+{{ range .agentsClaude.roles.implementer }}
+{{- $provider := index $.agentsClaude.providers .provider }}
 **{{ .name }}** ({{ .provider }}):
 ```
 {{ .run }}```
@@ -93,7 +93,7 @@ Select agents matching the task, then launch with `run_in_background: true`:
 
 | Name | Provider | Output |
 |------|----------|--------|
-{{- range .agents.roles.implementer }}
+{{- range .agentsClaude.roles.implementer }}
 | {{ .name }} | {{ .provider }} | .context/impl/${ROUND}-{{ .name }}.md |
 {{- end }}
 

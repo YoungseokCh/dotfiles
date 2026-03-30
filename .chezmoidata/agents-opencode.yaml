@@ -1,0 +1,128 @@
+agentsOpencode:
+  # Provider definitions — shared CLI config only
+  providers:
+    claude:
+      type: builtin
+      notes: "Runs as Task/Agent subagent inside Claude Code — no external CLI."
+    opencode:
+      type: cli
+      command: opencode
+      notes: "Use --format json + jq to extract text output. Use --attach http://localhost:PORT to reuse running server. Use --dir <path> for working directory."
+
+  # Roles — named slots with provider assignment
+  roles:
+    implementer:
+      - name: core-logic
+        provider: opencode
+        for: "Complex logic, APIs, multi-file changes (3+ files), deep codebase understanding"
+        run: |
+          opencode run --format json \
+            --dir "${PROJ_DIR:-.}" \
+            "Read task file .context/impl/${ROUND}-tasks.md. Implement the assigned tasks. Focus on complex logic, APIs, multi-file changes, and deep codebase understanding. Save implementation notes as markdown to .context/impl/${ROUND}-core-logic.md." \
+            2>/dev/null | jq -rs '[.[] | select(.type=="text") | .part.text] | join("\n")' \
+            > "${PROJ_DIR:-.}/.context/impl/${ROUND}-core-logic.md"
+      - name: code-gen
+        provider: opencode
+        for: "DB migrations, models, focused code generation, single-file tasks"
+        run: |
+          opencode run --format json \
+            --dir "${PROJ_DIR:-.}" \
+            "Read task file .context/impl/${ROUND}-tasks.md. Implement the assigned changes with focus on DB migrations, models, and focused single-file code generation. Save implementation notes as markdown to .context/impl/${ROUND}-code-gen.md." \
+            2>/dev/null | jq -rs '[.[] | select(.type=="text") | .part.text] | join("\n")' \
+            > "${PROJ_DIR:-.}/.context/impl/${ROUND}-code-gen.md"
+      - name: general-impl
+        provider: opencode
+        for: "General implementation, boilerplate, multi-model flexibility"
+        run: |
+          opencode run --format json \
+            --dir "${PROJ_DIR:-.}" \
+            "Read task file .context/impl/${ROUND}-tasks.md. Implement the assigned changes with focus on general implementation and boilerplate. Save implementation notes as markdown to .context/impl/${ROUND}-general-impl.md." \
+            2>/dev/null | jq -rs '[.[] | select(.type=="text") | .part.text] | join("\n")' \
+            > "${PROJ_DIR:-.}/.context/impl/${ROUND}-general-impl.md"
+
+    planner:
+      - name: architect
+        provider: opencode
+        for: "Complex analysis, architecture, deep codebase reading, trade-off evaluation"
+        run: |
+          opencode run --format json \
+            --dir "${PROJ_DIR:-.}" \
+            "${prompt}. Focus on complex analysis, architecture, deep codebase reading, and trade-off evaluation. Output the COMPLETE plan as markdown suitable for .context/plans/${ROUND}-architect.md." \
+            2>/dev/null | jq -rs '[.[] | select(.type=="text") | .part.text] | join("\n")' \
+            > "${PROJ_DIR:-.}/.context/plans/${ROUND}-architect.md"
+      - name: spec-writer
+        provider: opencode
+        for: "Technical specs, code design, algorithm design, documentation"
+        run: |
+          opencode run --format json \
+            --dir "${PROJ_DIR:-.}" \
+            "${prompt}. Focus on technical specs, code design, algorithm design, and documentation. Output the COMPLETE plan as markdown for .context/plans/${ROUND}-spec-writer.md." \
+            2>/dev/null | jq -rs '[.[] | select(.type=="text") | .part.text] | join("\n")' \
+            > "${PROJ_DIR:-.}/.context/plans/${ROUND}-spec-writer.md"
+      - name: alt-perspective
+        provider: opencode
+        for: "Alternative perspectives, creative approaches, general planning"
+        run: |
+          opencode run --format json \
+            --dir "${PROJ_DIR:-.}" \
+            "${prompt}. Focus on alternative perspectives, creative approaches, and general planning. Output the COMPLETE plan as markdown for .context/plans/${ROUND}-alt-perspective.md." \
+            2>/dev/null | jq -rs '[.[] | select(.type=="text") | .part.text] | join("\n")' \
+            > "${PROJ_DIR:-.}/.context/plans/${ROUND}-alt-perspective.md"
+
+    stock_analyzer:
+      - name: technical-analyst
+        provider: opencode
+        for: "Price action, chart patterns, technical indicators, support/resistance, trend analysis"
+        run: |
+          opencode run --format json \
+            --dir "${PROJ_DIR:-.}" \
+            "Read .context/stock-analysis/${ROUND}-request.md. Perform technical analysis focusing on price action, chart patterns, technical indicators, support and resistance, and trend analysis. Output complete analysis as markdown for .context/stock-analysis/${ROUND}-technical-analyst.md." \
+            2>/dev/null | jq -rs '[.[] | select(.type=="text") | .part.text] | join("\n")' \
+            > "${PROJ_DIR:-.}/.context/stock-analysis/${ROUND}-technical-analyst.md"
+      - name: fundamental-analyst
+        provider: opencode
+        for: "Financial statements, valuation ratios, earnings, revenue growth, competitive positioning"
+        run: |
+          opencode run --format json \
+            --dir "${PROJ_DIR:-.}" \
+            "Read .context/stock-analysis/${ROUND}-request.md and perform fundamental analysis. Cover financial statements, valuation ratios, earnings, revenue growth, competitive positioning. Output complete analysis as markdown." \
+            2>/dev/null | jq -rs '[.[] | select(.type=="text") | .part.text] | join("\n")' \
+            > "${PROJ_DIR:-.}/.context/stock-analysis/${ROUND}-fundamental-analyst.md"
+      - name: sentiment-analyst
+        provider: opencode
+        for: "News sentiment, social media trends, analyst ratings, market mood, catalysts"
+        run: |
+          opencode run --format json \
+            --dir "${PROJ_DIR:-.}" \
+            "Read .context/stock-analysis/${ROUND}-request.md and perform sentiment/news analysis. Cover recent news, analyst consensus, social sentiment, upcoming catalysts." \
+            2>/dev/null | jq -rs '[.[] | select(.type=="text") | .part.text] | join("\n")' \
+            > "${PROJ_DIR:-.}/.context/stock-analysis/${ROUND}-sentiment-analyst.md"
+
+    reviewer:
+      - name: architecture-reviewer
+        provider: opencode
+        for: "Architecture, security (OWASP), SOLID violations, backward compatibility"
+        run: |
+          opencode run --format json \
+            --dir "${PROJ_DIR:-.}" \
+            "Review the code changes. Focus on security (OWASP), architecture (SOLID), API design, data integrity, and backward compatibility. Format: ## Category / ### Finding / Severity / Description / Suggestion. Output the complete review as markdown for .context/reviews/${ROUND}-architecture-reviewer.md." \
+            2>/dev/null | jq -rs '[.[] | select(.type=="text") | .part.text] | join("\n")' \
+            > "${PROJ_DIR:-.}/.context/reviews/${ROUND}-architecture-reviewer.md"
+      - name: race-reviewer
+        provider: opencode
+        for: "Race conditions, edge cases, concurrency bugs, error handling, type safety"
+        run: |
+          opencode run --format json \
+            --dir "${PROJ_DIR:-.}" \
+            "Review the git diff between main and HEAD. Focus on race conditions, concurrency bugs, edge cases, error handling, type safety. Format: ## Category / ### Finding / severity + description + suggestion" \
+            2>/dev/null | jq -rs '[.[] | select(.type=="text") | .part.text] | join("\n")' \
+            > "${PROJ_DIR:-.}/.context/reviews/${ROUND}-race-reviewer.md"
+      - name: quality-reviewer
+        provider: opencode
+        for: "Code quality, documentation gaps, DRY violations, API consistency"
+        run: |
+          opencode run --format json \
+            --dir "${PROJ_DIR:-.}" \
+            "Review the git diff between main and HEAD. Focus on code quality, documentation gaps, DRY violations, API consistency. Format as ## Category / ### Finding / severity + description + suggestion" \
+            2>/dev/null | jq -rs '[.[] | select(.type=="text") | .part.text] | join("\n")' \
+            > "${PROJ_DIR:-.}/.context/reviews/${ROUND}-quality-reviewer.md"

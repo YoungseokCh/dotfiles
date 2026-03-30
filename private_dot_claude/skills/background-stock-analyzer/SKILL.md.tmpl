@@ -27,7 +27,7 @@ Multi-LLM parallel stock analysis with technical, fundamental, and sentiment per
 ```
 .context/stock-analysis/
 ├── R01-request.md                # Analysis request and context
-{{- range .agents.roles.stock_analyzer }}
+{{- range .agentsClaude.roles.stock_analyzer }}
 ├── R01-{{ .name }}.md{{ " " }}            # {{ .provider }}: {{ .for }}
 {{- end }}
 ├── R01-merged.md                 # Round 1: merged analysis
@@ -44,7 +44,7 @@ ROUND=$(printf "R%02d" $(( $(ls .context/stock-analysis/R*-*.md 2>/dev/null | se
 
 | Name | Provider | Focus |
 |------|----------|-------|
-{{- range .agents.roles.stock_analyzer }}
+{{- range .agentsClaude.roles.stock_analyzer }}
 | **{{ .name }}** | {{ .provider }} | {{ .for }} |
 {{- end }}
 
@@ -76,8 +76,8 @@ Write `.context/stock-analysis/${ROUND}-request.md`:
 ### Step 2: Launch Analysts (all with run_in_background)
 
 **IMPORTANT**: Use `run_in_background: true` on ALL agent launches. Each analyst should use WebSearch/WebFetch to gather current market data.
-{{ range .agents.roles.stock_analyzer }}
-{{- $provider := index $.agents.providers .provider }}
+{{ range .agentsClaude.roles.stock_analyzer }}
+{{- $provider := index $.agentsClaude.providers .provider }}
 **{{ .name }}** ({{ .provider }}):
 ```
 {{ .run }}```
@@ -94,7 +94,7 @@ Because all agents use `run_in_background: true`, the system receives automatic 
 
 | Name | Provider | Output | Status |
 |------|----------|--------|--------|
-{{- range .agents.roles.stock_analyzer }}
+{{- range .agentsClaude.roles.stock_analyzer }}
 | {{ .name }} | {{ .provider }} | .context/stock-analysis/${ROUND}-{{ .name }}.md | ⏳ running |
 {{- end }}
 

@@ -1,4 +1,4 @@
-agents:
+agentsClaude:
   # Provider definitions — shared CLI config only
   providers:
     claude:
