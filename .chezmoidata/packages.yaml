@@ -50,6 +50,8 @@ packages:
       - tree
       - direnv
       - starship
+      - trash-cli
+      - cmux
     cask:
       - karabiner-elements
       - obsidian
