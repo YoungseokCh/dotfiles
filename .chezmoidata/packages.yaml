@@ -45,18 +45,18 @@ packages:
       - bat
       - ripgrep
       - lsd
-      - font-hack-nerd-font
-      - rectangle
       - tree
       - direnv
       - starship
       - trash-cli
-      - cmux
+      - anomalyco/tap/opencode
+      - lazygit
     cask:
+      - font-hack-nerd-font
+      - rectangle
       - karabiner-elements
       - obsidian
       - slack
       - visual-studio-code
       - stats
       - scroll-reverser
-

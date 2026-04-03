@@ -20,18 +20,35 @@ fi
 printf '\nInitiating Homebrew update...\n'
 brew update
 
+brew_packages=(
+{{ range .packages.darwin.brew }}
+	{{ . | quote }}
+{{ end }}
+)
+
+cask_packages=(
+{{ range .packages.darwin.cask }}
+	{{ . | quote }}
+{{ end }}
+)
+
 printf '\nInstalling packages...\n'
-brew install ${PACKAGES[@]}
+for formula in "${brew_packages[@]}"; do
+	if ! brew list --formula "$formula" &>/dev/null; then
+		brew install "$formula"
+	fi
+done
+
+for cask in "${cask_packages[@]}"; do
+	if ! brew list --cask "$cask" &>/dev/null; then
+		brew install --cask "$cask"
+	fi
+done
 
 printf '\n\nRemoving out of date packages...\n'
-brew cleanup
-
-{{ range .packages.darwin.brew }}
-brew install {{ . }}
-{{ end }}
-{{ range .packages.darwin.cask }}
-brew install --cask {{ . }}
-{{ end }}
+if [ ${#brew_packages[@]} -gt 0 ] || [ ${#cask_packages[@]} -gt 0 ]; then
+	brew cleanup "${brew_packages[@]}" "${cask_packages[@]}"
+fi
 {{ end }}
 
 {{ if eq .chezmoi.os "linux" }}
