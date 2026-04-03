@@ -48,7 +48,7 @@ packages:
       - tree
       - direnv
       - starship
-      - trash-cli
+      - trash
       - anomalyco/tap/opencode
       - lazygit
     cask:
