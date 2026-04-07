@@ -51,6 +51,7 @@ packages:
       - trash
       - anomalyco/tap/opencode
       - lazygit
+      - gh
     cask:
       - font-hack-nerd-font
       - rectangle
