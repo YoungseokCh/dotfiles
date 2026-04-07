@@ -19,6 +19,5 @@
   "plugin": [
     "opencode-wakatime",
     "opencode-cmux",
-    "opencode-remote-cmux"
   ]
 }
