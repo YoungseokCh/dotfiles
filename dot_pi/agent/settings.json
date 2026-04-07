@@ -1,0 +1,11 @@
+{
+  "lastChangelogVersion": "0.65.1",
+  "theme": "dark",
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.4",
+  "defaultThinkingLevel": "medium",
+  "packages": [
+    "npm:pi-vim",
+    "npm:pi-cmux"
+  ]
+}
