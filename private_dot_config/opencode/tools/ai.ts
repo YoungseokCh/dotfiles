@@ -51,7 +51,7 @@ async function runModel(
       stdout: "pipe",
       stderr: "pipe",
     })
-    const timed = await waitForProcess(proc, 120_000)
+    const timed = await waitForProcess(proc)
     const stderr = (await new Response(timed.stderr).text()).trim()
 
     if (timed.exitCode !== 0) {
@@ -144,17 +144,8 @@ function buildCommand(
 
 async function waitForProcess(
   proc: Bun.Subprocess<"pipe", "pipe", "inherit">,
-  timeoutMs: number,
 ) {
-  const timeout = new Promise<never>((_, reject) => {
-    const timer = setTimeout(() => {
-      proc.kill()
-      reject(new Error(`Timed out after ${timeoutMs}ms`))
-    }, timeoutMs)
-    proc.exited.finally(() => clearTimeout(timer))
-  })
-
-  const exitCode = await Promise.race([proc.exited, timeout])
+  const exitCode = await proc.exited
   return { exitCode, stdout: proc.stdout, stderr: proc.stderr }
 }
 
