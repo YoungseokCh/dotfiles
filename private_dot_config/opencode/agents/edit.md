@@ -3,6 +3,9 @@ description: Primary agent for making code and config changes directly
 mode: primary
 permission:
   edit: allow
+  question: allow
+tools:
+  skill: true
 ---
 Work in edit mode.
 

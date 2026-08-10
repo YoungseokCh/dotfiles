@@ -1,15 +1,15 @@
 ---
-name: background-implementer
-description: Orchestrates AI agents for parallel implementation in the background. Separates independent tasks from planning docs, each agent writes code directly. Context-safe with auto-save. Use for "백그라운드 구현", "bg impl", "병렬 구현", "구현해줘", "코드 작성해줘" requests.
+name: implement
+description: Orchestrates AI agents for parallel implementation. Separates independent tasks from planning docs, each agent writes code directly. Context-safe with auto-save. Use for "구현", "백그라운드 구현", "bg impl", "병렬 구현", "구현해줘", "코드 작성해줘" requests.
 compatibility: opencode
 metadata:
   priority: high
-  tags: implementation,background,parallel-execution,multi-llm
+  tags: implementation,parallel-execution,multi-llm
 ---
 
-# Background Implementer
+# Implement
 
-Multi-LLM background implementation with context-safe parallel execution.
+Multi-agent implementation with context-safe parallel execution.
 
 ## Quick Start
 
@@ -18,7 +18,7 @@ Multi-LLM background implementation with context-safe parallel execution.
 # 2. Create output dir: .context/impl/
 # 3. Determine round: R01, R02, ...
 # 4. Pick agents based on task characteristics
-# 5. Run agents in background → {round}-{name}.md
+# 5. Launch up to {{ .agentsOpencode.implement.maxParallelAgents }} matching agents in parallel → {round}-{name}.md
 # 6. Guide user to check results manually
 ```
 
@@ -43,6 +43,8 @@ ROUND=$(printf "R%02d" $(( $(ls .context/impl/R*-*.md 2>/dev/null | sed 's/.*\/R
 ## Agent Selection
 
 Pick agents based on task characteristics:
+
+> Parallel limit: launch at most **{{ .agentsOpencode.implement.maxParallelAgents }}** agents at once. Keep this repo-managed setting between **1 and 5**.
 
 | Name | Provider | Best For |
 |------|----------|----------|
@@ -75,7 +77,7 @@ mkdir -p .context/impl
 ROUND=$(printf "R%02d" $(( $(ls .context/impl/R*-*.md 2>/dev/null | sed 's/.*\/R\([0-9]*\)-.*/\1/' | sort -rn | head -1 | sed 's/^0*//') + 1 )))
 ```
 
-Select agents matching the task, then launch in background:
+Select agents matching the task, then launch **up to {{ .agentsOpencode.implement.maxParallelAgents }} agents in parallel**. If more agents look useful, run them in later waves instead of exceeding the limit:
 {{ range .agentsOpencode.roles.implementer }}
 {{- if eq .provider "opencode" }}
 **{{ .name }}** (native — {{ .for }}):
@@ -122,9 +124,10 @@ When done, ask me to "확인해줘" or "빌드 체크"
 - Match agent to task characteristics (see Agent Selection table)
 - Use markdown files for task instructions
 - Respect dependency order (migration → models → handlers)
+- Keep each parallel wave at or below {{ .agentsOpencode.implement.maxParallelAgents }} agents
 - Let user check completion manually
 
 **DON'T:**
 - Poll task output repeatedly (token waste)
-- Run 10+ agents simultaneously
+- Exceed the configured parallel agent limit
 - Have multiple agents edit same file

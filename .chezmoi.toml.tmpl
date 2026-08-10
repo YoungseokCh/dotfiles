@@ -1,11 +1,16 @@
 {{- $name := promptStringOnce . "name" "Name" -}}
 {{- $email := promptStringOnce . "email" "Email address" -}}
 {{- $wakatime_api_key := promptStringOnce . "wakatime_api_key" "Wakatime API key" -}}
+{{- $package_install := "system" -}}
+{{- if eq .chezmoi.os "linux" -}}
+{{- $package_install = promptChoiceOnce . "package_install" "Package installation" (list "system" "user") "system" -}}
+{{- end -}}
 
 [data]
     name = {{ $name | quote }}
     email = {{ $email | quote }}
     wakatime_api_key = {{ $wakatime_api_key | quote }}
+    package_install = {{ $package_install | quote }}
 
 [edit]
     command = "nvim"

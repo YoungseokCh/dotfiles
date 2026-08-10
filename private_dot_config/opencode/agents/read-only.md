@@ -3,6 +3,9 @@ description: Primary agent for analysis, review, and planning without editing fi
 mode: primary
 permission:
   edit: deny
+  question: allow
+tools:
+  skill: false
 ---
 Work in read-only mode.
 

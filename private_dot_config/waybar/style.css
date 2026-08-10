@@ -1,0 +1,125 @@
+* {
+    border: none;
+    border-radius: 0;
+    font-family: "Inter", "Phosphor", sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    min-height: 0;
+    padding: 0;
+    margin: 0;
+}
+
+window#waybar {
+    background: rgba(15, 15, 15, 0.5);
+    color: #ffffff;
+}
+
+window#waybar.empty {
+    background: rgba(15, 15, 15, 0.5);
+}
+
+/* Left side */
+#custom-logo {
+    font-family: "Phosphor", sans-serif;
+    font-size: 16px;
+    padding: 0 12px;
+    color: #ffffff;
+}
+
+/* Icon-only modules */
+#pulseaudio,
+#network,
+#backlight {
+    font-family: "Phosphor", sans-serif;
+    font-size: 16px;
+}
+
+#window {
+    padding: 0 10px;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Workspaces */
+#workspaces {
+    padding: 0 5px;
+}
+
+#workspaces button {
+    padding: 0 8px;
+    color: #ffffff;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+}
+
+#workspaces button.active,
+#workspaces button.focused {
+    opacity: 1;
+    font-weight: 600;
+}
+
+#workspaces button:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+/* Right side modules */
+#cpu,
+#memory,
+#network,
+#backlight,
+#pulseaudio,
+#battery,
+#clock,
+#tray {
+    padding: 0 10px;
+    color: #ffffff;
+}
+
+#tray {
+    padding: 0 8px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+}
+
+/* Clock - rightmost element */
+#clock {
+    padding-right: 14px;
+    font-weight: 500;
+}
+
+/* Battery states */
+#battery.warning {
+    color: #f9a825;
+}
+
+#battery.critical {
+    color: #f44336;
+}
+
+#battery.charging {
+    color: #4caf50;
+}
+
+/* Network */
+#network.disconnected {
+    color: #999999;
+}
+
+/* Hover effects */
+#cpu:hover,
+#memory:hover,
+#network:hover,
+#backlight:hover,
+#pulseaudio:hover,
+#battery:hover,
+#clock:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
