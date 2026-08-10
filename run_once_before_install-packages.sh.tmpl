@@ -88,7 +88,7 @@ if [ ! -x "${HOME}/.local/bin/nvim" ]; then
 	ln -sfn "${HOME}/.local/opt/nvim/bin/nvim" "${HOME}/.local/bin/nvim"
 fi
 
-if [ ! -x "${HOME}/.local/bin/starship" ] || [ ! -x "${HOME}/.local/bin/zoxide" ]; then
+if [ ! -x "${HOME}/.local/bin/starship" ] || [ ! -x "${HOME}/.local/bin/zoxide" ] || [ ! -x "${HOME}/.local/bin/lsd" ]; then
 	if ! command -v cargo &>/dev/null; then
 		curl --proto '=https' --tlsv1.2 -fsSL https://sh.rustup.rs |
 			sh -s -- -y --profile minimal --no-modify-path
@@ -102,6 +102,10 @@ fi
 
 if [ ! -x "${HOME}/.local/bin/zoxide" ]; then
 	cargo install --locked --root "${HOME}/.local" zoxide
+fi
+
+if [ ! -x "${HOME}/.local/bin/lsd" ]; then
+	cargo install --locked --root "${HOME}/.local" lsd
 fi
 {{ end }}
 {{ end }}
