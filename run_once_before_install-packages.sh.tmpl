@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 {{ if eq .chezmoi.os "darwin" -}}
 # Install Homebrew on any OS if not found
@@ -66,6 +67,8 @@ sudo apt-get install -y {{ . }}
 {{ end }}
 {{ end }}
 {{ else }}
+mkdir -p "${HOME}/.local/bin"
+
 if [ ! -x "${HOME}/.local/bin/nvim" ]; then
 	{{ if eq .chezmoi.arch "amd64" -}}
 	nvim_arch=x86_64
@@ -79,10 +82,19 @@ if [ ! -x "${HOME}/.local/bin/nvim" ]; then
 	trap 'rm -rf "$nvim_tmp"' EXIT
 	curl -fsSL "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-${nvim_arch}.tar.gz" |
 		tar -xz -C "$nvim_tmp"
-	mkdir -p "${HOME}/.local/bin" "${HOME}/.local/opt"
+	mkdir -p "${HOME}/.local/opt"
 	rm -rf "${HOME}/.local/opt/nvim"
 	mv "$nvim_tmp/nvim-linux-${nvim_arch}" "${HOME}/.local/opt/nvim"
 	ln -sfn "${HOME}/.local/opt/nvim/bin/nvim" "${HOME}/.local/bin/nvim"
+fi
+
+if [ ! -x "${HOME}/.local/bin/starship" ]; then
+	curl -fsSL https://starship.rs/install.sh |
+		sh -s -- --yes --bin-dir "${HOME}/.local/bin"
+fi
+
+if [ ! -x "${HOME}/.local/bin/zoxide" ]; then
+	curl -fsSL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
 fi
 {{ end }}
 {{ end }}
